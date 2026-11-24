@@ -1,0 +1,61 @@
+"""Drive the real Streamlit app (app.py) with Streamlit's AppTest, with the agent mocked out."""
+
+import io
+import json
+from pathlib import Path
+from unittest.mock import patch
+
+from pypdf import PdfWriter
+from streamlit.testing.v1 import AppTest
+
+APP = str(Path(__file__).resolve().parent.parent / "app.py")
+SAMPLE_REPORT = json.loads((Path(__file__).parent / "sample_report.json").read_text())
+
+
+def blank_pdf() -> bytes:
+    """A PDF with pages but no text, like a scanned document."""
+    writer = PdfWriter()
+    for _ in range(2):
+        writer.add_blank_page(width=612, height=792)
+    buffer = io.BytesIO()
+    writer.write(buffer)
+    return buffer.getvalue()
+
+
+def upload(file_bytes: bytes, report=None) -> AppTest:
+    at = AppTest.from_file(APP, default_timeout=30)
+    with patch.dict("os.environ", {"GEMINI_API_KEY": "test-key"}), \
+         patch("triage.pipeline.run_triage", return_value=report) as fake:
+        at.run()
+        at.file_uploader[0].set_value(("rfp.pdf", file_bytes, "application/pdf"))
+        at.run()
+    at.fake = fake
+    return at
+
+
+def test_missing_api_key_shows_error():
+    at = AppTest.from_file(APP)
+    with patch.dict("os.environ", {"GEMINI_API_KEY": ""}), patch("streamlit.secrets", {}):
+        at.run()
+    assert any("No Gemini API key" in e.value for e in at.error)
+
+
+def test_report_renders_banner_tabs_and_downloads():
+    at = upload(b"%PDF-1.4 fake bytes for the hash", SAMPLE_REPORT)
+    assert not at.exception
+    banner = at.success[0].value if SAMPLE_REPORT["decision"] == "BID" else at.error[0].value
+    assert f"{SAMPLE_REPORT['fit_score']}/10" in banner
+    assert [t.label for t in at.tabs] == ["Report", "Evidence check", "JSON"]
+    assert any("quotes verified" in m.value for m in at.markdown)
+    labels = [b.label for b in at.get("download_button")]
+    assert any(".ics" in label for label in labels) and any("JSON" in label for label in labels)
+
+
+def test_scanned_pdf_shows_clear_error():
+    # No mock needed for the error: the real PDF reader raises before any model call.
+    at = AppTest.from_file(APP, default_timeout=30)
+    with patch.dict("os.environ", {"GEMINI_API_KEY": "test-key"}):
+        at.run()
+        at.file_uploader[0].set_value(("scan.pdf", blank_pdf(), "application/pdf"))
+        at.run()
+    assert any("scanned" in e.value for e in at.error)

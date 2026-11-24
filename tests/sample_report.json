@@ -1,0 +1,1197 @@
+{
+  "decision": "BID",
+  "fit_score": 8,
+  "deadlines": [
+    {
+      "what": "RFP issue date",
+      "date": "2026-11-20",
+      "time": "Not stated",
+      "as_written": "November 20, 2026",
+      "quote": "Issue date November 20, 2026",
+      "page": 1,
+      "note": "",
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 1,
+        "date_matches_quote": true
+      },
+      "superseded": false
+    },
+    {
+      "what": "Addendum No. 1 issue date",
+      "date": "2026-11-24",
+      "time": "Not stated",
+      "as_written": "November 24, 2026",
+      "quote": "Addendum No. 1 (issued November 24, 2026):",
+      "page": 5,
+      "note": "",
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 5,
+        "date_matches_quote": true
+      },
+      "superseded": false
+    },
+    {
+      "what": "Pre-proposal conference RSVP deadline",
+      "date": "2026-12-01",
+      "time": "Not stated",
+      "as_written": "December 1, 2026",
+      "quote": "procurement contact by December 1, 2026 to receive the meeting link",
+      "page": 5,
+      "note": "",
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 5,
+        "date_matches_quote": true
+      },
+      "superseded": false
+    },
+    {
+      "what": "Pre-proposal conference (virtual, optional)",
+      "date": "2026-12-03",
+      "time": "10:00 AM Pacific",
+      "as_written": "December 3, 2026, 10:00 AM",
+      "quote": "Pre-proposal conference (virtual, optional) December 3, 2026, 10:00 AM",
+      "page": 5,
+      "note": "",
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 5,
+        "date_matches_quote": true
+      },
+      "superseded": false
+    },
+    {
+      "what": "Deadline for written questions",
+      "date": "2026-12-11",
+      "time": "5:00 PM Pacific",
+      "as_written": "December 11, 2026, 5:00 PM",
+      "quote": "Deadline for written questions December 11, 2026, 5:00 PM",
+      "page": 5,
+      "note": "",
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 5,
+        "date_matches_quote": true
+      },
+      "superseded": false
+    },
+    {
+      "what": "Answers posted as an addendum",
+      "date": "2026-12-18",
+      "time": "Not stated",
+      "as_written": "December 18, 2026",
+      "quote": "Answers posted as an addendum December 18, 2026",
+      "page": 5,
+      "note": "",
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 5,
+        "date_matches_quote": true
+      },
+      "superseded": false
+    },
+    {
+      "what": "Proposals due (original)",
+      "date": "2027-01-08",
+      "time": "Not stated",
+      "as_written": "January 8, 2027",
+      "quote": "Proposals due January 8, 2027 January 15, 2027, 3:00 PM",
+      "page": 1,
+      "note": "Original date before extension by Addendum No. 1. Superseded.",
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 1,
+        "date_matches_quote": true
+      },
+      "superseded": true
+    },
+    {
+      "what": "Proposals due (revised)",
+      "date": "2027-01-15",
+      "time": "3:00 PM Pacific",
+      "as_written": "January 15, 2027, 3:00 PM",
+      "quote": "Proposals due January 8, 2027 January 15, 2027, 3:00 PM",
+      "page": 1,
+      "note": "Current date revised by Addendum No. 1.",
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 1,
+        "date_matches_quote": true
+      },
+      "superseded": false
+    },
+    {
+      "what": "Finalist demonstrations (virtual)",
+      "date": "Not stated",
+      "time": "Not stated",
+      "as_written": "Week of February 8, 2027",
+      "quote": "Finalist demonstrations (virtual) Week of February 8, 2027",
+      "page": 5,
+      "note": "Specific day not stated; week range given.",
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 5,
+        "date_matches_quote": null
+      },
+      "superseded": false
+    },
+    {
+      "what": "Anticipated notice of intent to award",
+      "date": "2027-03-01",
+      "time": "Not stated",
+      "as_written": "March 1, 2027",
+      "quote": "Anticipated notice of intent to award March 1, 2027",
+      "page": 5,
+      "note": "",
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 5,
+        "date_matches_quote": true
+      },
+      "superseded": false
+    },
+    {
+      "what": "Anticipated contract start (Notice to Proceed)",
+      "date": "2027-03-22",
+      "time": "Not stated",
+      "as_written": "March 22, 2027",
+      "quote": "Anticipated contract start (Notice to Proceed) March 22, 2027",
+      "page": 5,
+      "note": "",
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 5,
+        "date_matches_quote": true
+      },
+      "superseded": false
+    },
+    {
+      "what": "Phase 1 Discovery target timing",
+      "date": "Not stated",
+      "time": "Not stated",
+      "as_written": "Weeks 1\u20136 after NTP",
+      "quote": "1. Discovery Confirm requirements, checklists, data flows and integration design with DPI. Weeks 1\u20136 after NTP",
+      "page": 8,
+      "note": "Relative to Notice to Proceed.",
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 8,
+        "date_matches_quote": null
+      },
+      "superseded": false
+    },
+    {
+      "what": "Phase 2 Pilot release target timing",
+      "date": "Not stated",
+      "time": "Not stated",
+      "as_written": "Within 120 days of NTP",
+      "quote": "2. Pilot release Portal, completeness check and routing live for the 10 highest-volume permit types. Within 120 days of NTP",
+      "page": 8,
+      "note": "Relative to Notice to Proceed.",
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 8,
+        "date_matches_quote": null
+      },
+      "superseded": false
+    },
+    {
+      "what": "Phase 3 Full release target timing",
+      "date": "Not stated",
+      "time": "Not stated",
+      "as_written": "Within 9 months of NTP",
+      "quote": "3. Full release All permit types, plan-review assist, applicant assistant, PermitCore integration. Within 9 months of NTP",
+      "page": 8,
+      "note": "Relative to Notice to Proceed.",
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 8,
+        "date_matches_quote": null
+      },
+      "superseded": false
+    },
+    {
+      "what": "Phase 4 Stabilization target timing",
+      "date": "Not stated",
+      "time": "Not stated",
+      "as_written": "90 days of post-launch support, tuning and staff training. After full release",
+      "quote": "4. Stabilization 90 days of post-launch support, tuning and staff training. After full release",
+      "page": 8,
+      "note": "Relative to full release.",
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 8,
+        "date_matches_quote": null
+      },
+      "superseded": false
+    }
+  ],
+  "requirements": [
+    {
+      "category": "set_aside",
+      "requirement": "The RFP is set aside for Small Businesses.",
+      "mandatory": true,
+      "quote": "Set-aside Small Business set-aside (see Section 5.3)",
+      "page": 1,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 1,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "other",
+      "requirement": "Written questions must be submitted by December 11, 2026, 5:00 PM Pacific.",
+      "mandatory": true,
+      "quote": "Written questions due December 11, 2026, 5:00 PM Paci\ufb01c",
+      "page": 1,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 1,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "other",
+      "requirement": "Proposals must be submitted by January 15, 2027, 3:00 PM Pacific.",
+      "mandatory": true,
+      "quote": "Proposals due January 8, 2027 January 15, 2027, 3:00 PM Paci\ufb01c",
+      "page": 1,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 1,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "other",
+      "requirement": "Proposers must acknowledge Addendum No. 1 on Attachment A.",
+      "mandatory": true,
+      "quote": "Proposers must acknowledge this addendum on Attachment A.",
+      "page": 5,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 5,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "other",
+      "requirement": "Firms wishing to attend the optional pre-proposal conference must email the procurement contact by December 1, 2026 to receive the link.",
+      "mandatory": true,
+      "quote": "Firms that wish to attend must email the procurement contact by December 1, 2026",
+      "page": 5,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 5,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "other",
+      "requirement": "Questions must be submitted by email to the procurement contact with the specified subject line no later than the deadline.",
+      "mandatory": true,
+      "quote": "Submit questions by email to the procurement contact, with \u201cRFP No. PA-DPI-2026-114 Questions\u201d in the subject line, no later than the deadline above.",
+      "page": 5,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 5,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "skill",
+      "requirement": "Provide a web-based, mobile-responsive applicant portal for account creation, starting applications, uploading files (PDF, DWG, JPG, PNG up to 250 MB each), and tracking status.",
+      "mandatory": true,
+      "quote": "Web-based, mobile-responsive portal for creating an account, starting an application, uploading \ufb01les (PDF, DWG, JPG, PNG; up to 250 MB per \ufb01le) and tracking status.",
+      "page": 6,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 6,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "skill",
+      "requirement": "Perform AI completeness check against City checklists for about 46 permit types and return plain-language list of missing items within 2 minutes.",
+      "mandatory": true,
+      "quote": "Check each package against the City\u2019s checklist for its permit type (about 46 permit types). Return a plain-language list of missing or de\ufb01cient items to the applicant within 2 minutes of submission.",
+      "page": 6,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 6,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "skill",
+      "requirement": "Classify packages by permit type, scope, and complexity, and route to the correct review queue based on staff-configurable rules.",
+      "mandatory": true,
+      "quote": "Classify each package by permit type, scope and complexity, and route it to the right review queue under rules that sta\ufb00 can con\ufb01gure.",
+      "page": 6,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 6,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "skill",
+      "requirement": "Extract key data from forms/drawings, flag potential code conflicts with Municipal Code Title 17 and adopted building codes citing specific sections, without approving/denying permits.",
+      "mandatory": true,
+      "quote": "Extract key data from forms and drawings (for example square footage, occupancy class, construction type, declared valuation). Flag likely con\ufb02icts with the Port Alder Municipal Code, Title 17, and the building codes the City has adopted.",
+      "page": 6,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 6,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "skill",
+      "requirement": "Provide a conversational assistant on the portal to answer permit questions from approved content, supporting English and Spanish, without giving legal/engineering advice, and handing off to staff on request.",
+      "mandatory": true,
+      "quote": "A conversational assistant on the portal that answers permit questions from City-approved content. English and Spanish are mandatory",
+      "page": 6,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 6,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "skill",
+      "requirement": "Support Vietnamese and Russian languages in the conversational applicant assistant.",
+      "mandatory": false,
+      "quote": "Vietnamese and Russian are desired.",
+      "page": 6,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 6,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "skill",
+      "requirement": "Provide a staff dashboard featuring queues, review timers against SLAs, workload by reviewer, and exportable reports.",
+      "mandatory": true,
+      "quote": "Queues, review timers against service-level targets, workload by reviewer, and exportable reports.",
+      "page": 6,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 6,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "skill",
+      "requirement": "Send email notifications at each status change.",
+      "mandatory": true,
+      "quote": "Email noti\ufb01cations at each status change.",
+      "page": 6,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 6,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "skill",
+      "requirement": "Provide SMS notifications for status changes.",
+      "mandatory": false,
+      "quote": "SMS noti\ufb01cations are desired.",
+      "page": 6,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 6,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "skill",
+      "requirement": "Provide two-way integration with PermitCore v9 via REST and SOAP APIs so records are not entered twice.",
+      "mandatory": true,
+      "quote": "Two-way integration with the City\u2019s permitting system of record (PermitCore v9, hosted on City premises; REST and SOAP APIs available) so that records are not entered twice.",
+      "page": 6,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 6,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "skill",
+      "requirement": "Maintain an audit trail logging AI outputs with model version, inputs, timestamp, and reviewer action, retaining logs for 7 years.",
+      "mandatory": true,
+      "quote": "Log every AI output with the model version, inputs, timestamp and the reviewer\u2019s action on it. Keep logs for 7 years.",
+      "page": 6,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 6,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "skill",
+      "requirement": "Enable self-service configuration so authorized staff can edit checklists, routing rules, and assistant content without vendor involvement.",
+      "mandatory": true,
+      "quote": "Authorized DPI sta\ufb00 can edit checklists, routing rules and assistant content without vendor involvement.",
+      "page": 6,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 6,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "skill",
+      "requirement": "Allow applicants to self-schedule field inspections.",
+      "mandatory": false,
+      "quote": "Applicant self-scheduling of \ufb01eld inspections.",
+      "page": 6,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 6,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "skill",
+      "requirement": "Support ten specified pilot permit types during the Phase 2 pilot release.",
+      "mandatory": true,
+      "quote": "The pilot release (Phase 2) must support the ten permit types below, which together account for about 72% of annual volume.",
+      "page": 6,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 6,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "skill",
+      "requirement": "Create permit records, contacts, and document attachments in PermitCore upon passing completeness check, and read back status changes, comments, and fees at least every 15 minutes or in real time.",
+      "mandatory": true,
+      "quote": "Create permit records, contacts and document attachments in PermitCore when a package passes the completeness check. Read status changes, review comments and fees back from PermitCore at least every 15 minutes, or in real time where events are available.",
+      "page": 7,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 7,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "skill",
+      "requirement": "Integrate with Esri ArcGIS Enterprise GIS REST map services to look up parcel number, zoning district, overlay zones, and flood zone by address for completeness check and routing.",
+      "mandatory": true,
+      "quote": "Look up parcel number, zoning district, overlay zones (shoreline, critical areas, historic district) and \ufb02ood zone from the applicant\u2019s address, and use them in the completeness check and routing rules.",
+      "page": 7,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 7,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "skill",
+      "requirement": "Check state contractor license numbers against the WA L&I public lookup and flag expired, suspended, or mismatched licenses.",
+      "mandatory": true,
+      "quote": "Check contractor license numbers against the Washington State Department of Labor & Industries public lookup and \ufb02ag numbers that are expired, suspended or do not match the name provided.",
+      "page": 7,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 7,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "skill",
+      "requirement": "Migrate approximately 3,200 open applications and associated documents (approx. 1.4 TB) at go-live.",
+      "mandatory": true,
+      "quote": "Load approximately 3,200 applications that are open at go-live, with their documents (about 1.4 TB), so that applicants can track them in the new portal.",
+      "page": 7,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 7,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "skill",
+      "requirement": "Store documents on the platform with a copy written to PermitCore, adhering to the City's records retention schedule for file names and metadata.",
+      "mandatory": true,
+      "quote": "Store documents in the Contractor\u2019s platform with a copy written to PermitCore. File names and metadata must follow the City\u2019s records retention schedule.",
+      "page": 7,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 7,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "skill",
+      "requirement": "Provide a nightly data extract (CSV or database replica) for City Power BI reporting.",
+      "mandatory": true,
+      "quote": "Provide a nightly data extract (CSV or direct database replica) for the City\u2019s Power BI reporting.",
+      "page": 7,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 7,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "skill",
+      "requirement": "Ensure WCAG 2.1 Level AA compliance for all public-facing web pages.",
+      "mandatory": true,
+      "quote": "WCAG 2.1 Level AA for all public-facing pages [M].",
+      "page": 7,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 7,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "skill",
+      "requirement": "Store and process all City data in US-located data centers.",
+      "mandatory": true,
+      "quote": "all City data stored and processed in data centers located in the United States [M].",
+      "page": 7,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 7,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "certification",
+      "requirement": "The hosting environment must possess a current SOC 2 Type II report or FedRAMP authorization.",
+      "mandatory": true,
+      "quote": "The hosting environment must hold a current SOC 2 Type II report or FedRAMP authorization [M].",
+      "page": 7,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 7,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "skill",
+      "requirement": "Implement data encryption in transit (TLS 1.2 or higher) and at rest.",
+      "mandatory": true,
+      "quote": "Encryption in transit (TLS 1.2 or higher) and at rest [M].",
+      "page": 7,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 7,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "skill",
+      "requirement": "Support staff single sign-on using SAML 2.0 or OpenID Connect with multi-factor authentication.",
+      "mandatory": true,
+      "quote": "Sta\ufb00 sign-in through the City\u2019s single sign-on (SAML 2.0 or OpenID Connect) with multi-factor authentication [M].",
+      "page": 7,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 7,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "skill",
+      "requirement": "Maintain system availability of 99.5% during City business hours, measured monthly.",
+      "mandatory": true,
+      "quote": "Availability of 99.5% during City business hours, measured monthly [M].",
+      "page": 7,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 7,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "certification",
+      "requirement": "Hold a SOC 2 Type II report for the Contractor's own organization.",
+      "mandatory": false,
+      "quote": "A SOC 2 Type II report for the Contractor\u2019s own organization is desired [D].",
+      "page": 7,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 7,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "skill",
+      "requirement": "Ensure City data is not used to train or fine-tune AI models offered to other customers.",
+      "mandatory": true,
+      "quote": "City data must not be used to train or \ufb01ne-tune models o\ufb00ered to other customers.",
+      "page": 8,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 8,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "other",
+      "requirement": "Document models used, limits, and accuracy measurement, and report completeness-check accuracy quarterly.",
+      "mandatory": true,
+      "quote": "The Contractor will document the models used, their known limits, and how accuracy is measured, and will report completeness-check accuracy to DPI each quarter.",
+      "page": 8,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 8,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "skill",
+      "requirement": "Test the applicant assistant for accuracy and consistency across supported languages prior to go-live.",
+      "mandatory": true,
+      "quote": "The Contractor will test the applicant assistant for accuracy and consistency across supported languages before go-live.",
+      "page": 8,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 8,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "staffing",
+      "requirement": "Provide project deliverables including biweekly management plan updates, solution design, configured platform, staff/admin training, model docs, and final data export.",
+      "mandatory": true,
+      "quote": "Project management plan and schedule, updated every two weeks.",
+      "page": 8,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 8,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "skill",
+      "requirement": "Achieve 90% or higher agreement with City staff on test completeness checks during UAT.",
+      "mandatory": true,
+      "quote": "Completeness check agrees with City sta\ufb00 outcome 90% or more of test applications",
+      "page": 8,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 8,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "skill",
+      "requirement": "Ensure incomplete packages are wrongly marked complete 3% or less of the time during UAT.",
+      "mandatory": true,
+      "quote": "Incomplete package wrongly marked complete 3% or less",
+      "page": 8,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 8,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "skill",
+      "requirement": "Achieve 95% or higher accuracy for permit type and review queue assignment during UAT.",
+      "mandatory": true,
+      "quote": "Correct permit type and review queue assigned 95% or more",
+      "page": 8,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 8,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "skill",
+      "requirement": "Achieve 90% or higher correctness rating for applicant assistant answers during UAT across 200 test questions per language.",
+      "mandatory": true,
+      "quote": "Applicant assistant answers rated correct by DPI reviewers (200 test questions per language) 90% or more",
+      "page": 8,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 8,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "skill",
+      "requirement": "Return completeness results within 2 minutes for 95% of packages during UAT.",
+      "mandatory": true,
+      "quote": "Completeness result returned to applicant Within 2 minutes for 95% of packages",
+      "page": 8,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 8,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "skill",
+      "requirement": "Have zero Severity 1 or 2 defects open at the end of UAT.",
+      "mandatory": true,
+      "quote": "Severity 1 or 2 defects open at end of UAT None",
+      "page": 8,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 8,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "other",
+      "requirement": "Correct UAT defects at Contractor's own cost if a phase fails testing.",
+      "mandatory": true,
+      "quote": "If a phase fails UAT, the Contractor will correct the defects at its own cost and the City will retest.",
+      "page": 8,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 8,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "staffing",
+      "requirement": "Provide help-desk support to staff M-F 7am-6pm Pacific, with 24/7 on-call coverage for Severity 1 issues.",
+      "mandatory": true,
+      "quote": "provide help-desk support to City sta\ufb00 (not to the public) from 7:00 AM to 6:00 PM Paci\ufb01c, Monday to Friday, by phone, email and ticket portal, with emergency on-call coverage for Severity 1 issues at all times.",
+      "page": 9,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 9,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "skill",
+      "requirement": "Meet required support response and resolution times across Severity levels 1 through 4.",
+      "mandatory": true,
+      "quote": "1 \u2014 Critical Portal or sta\ufb00 platform unavailable, or data loss or security incident 30 minutes, 24/7 4 hours",
+      "page": 9,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 9,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "staffing",
+      "requirement": "Deliver role-based training (live/recorded) for staff and create applicant-facing help content in English and Spanish.",
+      "mandatory": true,
+      "quote": "Role-based training for permit technicians, plan reviewers, supervisors and administrators, delivered live (remote is acceptable) and recorded.",
+      "page": 9,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 9,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "staffing",
+      "requirement": "Run a joint outreach session for the local contractor/architect community prior to full release.",
+      "mandatory": true,
+      "quote": "An outreach session for the local contractor and architect community before full release, run jointly with DPI.",
+      "page": 9,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 9,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "other",
+      "requirement": "Provide full data export in open formats within 30 days of contract end, support transition for up to 90 days at contracted hourly rates, and certify data deletion.",
+      "mandatory": true,
+      "quote": "the Contractor will provide a full export of City data and documents in open formats (CSV or JSON, and original \ufb01le formats for documents) within 30 days, support transition to a new provider for up to 90 days at the hourly rates in Attachment C, and then certify in writing that City data has been deleted from its systems.",
+      "page": 9,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 9,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "past_performance",
+      "requirement": "Proposer must have been in business for at least three (3) years as of the proposal due date.",
+      "mandatory": true,
+      "quote": "The Proposer has been in business for at least three (3) years as of the proposal due date.",
+      "page": 9,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 9,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "past_performance",
+      "requirement": "Proposer must have completed at least two projects in the past 5 years delivering AI or workflow automation to public-sector or regulated-industry clients, with at least one reference.",
+      "mandatory": true,
+      "quote": "The Proposer has completed at least two (2) projects in the past \ufb01ve (5) years that delivered AI or work\ufb02ow-automation software for public-sector or regulated-industry clients",
+      "page": 9,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 9,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "license_or_registration",
+      "requirement": "Proposer must be registered to do business in Washington State or provide a UBI number before contract execution.",
+      "mandatory": true,
+      "quote": "The Proposer is registered to do business in the State of Washington, or will register and provide a Uni\ufb01ed Business Identi\ufb01er (UBI) number before contract execution.",
+      "page": 9,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 9,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "staffing",
+      "requirement": "Proposer must name a Project Manager and Technical Lead; Project Manager must attend kick-off in person in Port Alder, while other work must be performed within the US.",
+      "mandatory": true,
+      "quote": "The Proposer names a Project Manager and a Technical Lead. The Project Manager must attend the project kicko\ufb00 in person in Port Alder. All other work may be performed remotely from within the United States.",
+      "page": 10,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 10,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "insurance_or_bonding",
+      "requirement": "Proposer must be able to provide the mandatory insurance specified in Section 8.",
+      "mandatory": true,
+      "quote": "The Proposer can provide the insurance required in Section 8.",
+      "page": 10,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 10,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "other",
+      "requirement": "Submit one text-searchable PDF of maximum 30 pages (excluding attachments/cost proposal) via Port Alder Bids, with Attachment C submitted as a separate file.",
+      "mandatory": true,
+      "quote": "Submit one text-searchable PDF of no more than 30 pages (excluding attachments and the cost proposal) through Port Alder Bids by the due date in Section 2. Submit the cost proposal (Attachment C) as a separate \ufb01le.",
+      "page": 10,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 10,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "other",
+      "requirement": "Proposals submitted via email, fax, or paper will not be accepted.",
+      "mandatory": true,
+      "quote": "Emailed, faxed or paper proposals will not be accepted.",
+      "page": 10,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 10,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "other",
+      "requirement": "Organize proposal in specified tab order and observe page limits per tab.",
+      "mandatory": true,
+      "quote": "Organize the proposal in the order below, using the same section numbers. Page limits apply to each tab.",
+      "page": 10,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 10,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "set_aside",
+      "requirement": "Proposer must self-certify as a Small Business (fewer than 100 employees, average gross receipts <$15M over 3 years) on Attachment A.",
+      "mandatory": true,
+      "quote": "For this RFP a Small Business is a \ufb01rm with fewer than 100 employees and average annual gross receipts of less than $15 million over the last three years. Proposers must self-certify on Attachment A.",
+      "page": 10,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 10,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "set_aside",
+      "requirement": "The prime Proposer must perform at least 50% of the work by cost.",
+      "mandatory": true,
+      "quote": "the prime Proposer must perform at least 50% of the work by cost.",
+      "page": 10,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 10,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "other",
+      "requirement": "Proposers may communicate only in writing with the designated procurement contact from issue until award notice.",
+      "mandatory": true,
+      "quote": "From issue until notice of intent to award, Proposers may communicate about this RFP only in writing with the procurement contact on the cover page.",
+      "page": 10,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 10,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "other",
+      "requirement": "Total proposal price must not exceed the budgeted $420,000 not-to-exceed amount.",
+      "mandatory": true,
+      "quote": "Proposals over the $420,000 not-to-exceed amount will be rejected.",
+      "page": 11,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 11,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "insurance_or_bonding",
+      "requirement": "Contractor must maintain Commercial General Liability insurance of $1,000,000 per occurrence / $2,000,000 aggregate, naming the City as additional insured.",
+      "mandatory": true,
+      "quote": "Commercial general liability $1,000,000 per occurrence / $2,000,000 aggregate",
+      "page": 12,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 12,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "insurance_or_bonding",
+      "requirement": "Contractor must maintain Professional Liability insurance of $2,000,000 per claim.",
+      "mandatory": true,
+      "quote": "Professional liability (errors and omissions) $2,000,000 per claim",
+      "page": 12,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 12,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "insurance_or_bonding",
+      "requirement": "Contractor must maintain Cyber Liability insurance including breach response of $2,000,000 per claim.",
+      "mandatory": true,
+      "quote": "Cyber liability, including data breach response $2,000,000 per claim",
+      "page": 12,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 12,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "insurance_or_bonding",
+      "requirement": "Contractor must provide statutory Workers' Compensation insurance.",
+      "mandatory": true,
+      "quote": "Workers\u2019 compensation Statutory",
+      "page": 12,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 12,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "insurance_or_bonding",
+      "requirement": "Contractor must provide Automobile Liability insurance of $1,000,000 combined single limit if vehicles are used on City business.",
+      "mandatory": true,
+      "quote": "Automobile liability (if vehicles are used on City business) $1,000,000 combined single limit",
+      "page": 12,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 12,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "other",
+      "requirement": "Contractor must notify the City of any actual or suspected security incident within 24 hours of discovery and cover notification costs.",
+      "mandatory": true,
+      "quote": "The Contractor will notify the City of any actual or suspected security incident involving City data within 24 hours of discovery and will cover the cost of any legally required noti\ufb01cations.",
+      "page": 12,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 12,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "license_or_registration",
+      "requirement": "Contractor must comply with all applicable federal, state, and local laws, including ADA and WA data breach law (RCW 19.255).",
+      "mandatory": true,
+      "quote": "The Contractor will comply with all applicable federal, state and local laws, including the Americans with Disabilities Act and Washington State data breach law (RCW 19.255).",
+      "page": 13,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 13,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "other",
+      "requirement": "Subcontractors must be approved by the City in writing.",
+      "mandatory": true,
+      "quote": "Subcontractors must be approved by the City in writing and are bound by the same terms.",
+      "page": 13,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 13,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "other",
+      "requirement": "Proposals must remain valid for 120 days after the due date.",
+      "mandatory": true,
+      "quote": "Proposals must remain valid for 120 days after the due date.",
+      "page": 13,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 13,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "past_performance",
+      "requirement": "Provide three references for comparable work completed in the last 5 years, with at least one public-sector or regulated-industry client.",
+      "mandatory": true,
+      "quote": "Provide three references for comparable work completed in the last \ufb01ve years. At least one must be a public-sector or regulated-industry client (Section 4.2).",
+      "page": 14,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 14,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "other",
+      "requirement": "Pricing in Attachment C must include all labor, travel, hosting, third-party licenses, AI model fees, and state usage limits/overage fees.",
+      "mandatory": true,
+      "quote": "Prices must include all labor, travel, hosting, third-party licenses (including AI model usage fees) and expenses. The City does not pay separately for travel.",
+      "page": 15,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 15,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "other",
+      "requirement": "Complete Attachment D (Requirements Response Matrix) selecting appropriate response codes and explanations for each listed item.",
+      "mandatory": true,
+      "quote": "For each requirement, enter one response code and a short explanation.",
+      "page": 16,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 16,
+        "date_matches_quote": null
+      }
+    },
+    {
+      "category": "other",
+      "requirement": "Complete Attachment E (Security and Data Questionnaire) answering all ten security, architecture, and compliance questions.",
+      "mandatory": true,
+      "quote": "Name the cloud provider(s) and regions that will host City data, and attach the provider\u2019s SOC 2 Type II or FedRAMP evidence.",
+      "page": 17,
+      "evidence": {
+        "status": "verified",
+        "found_on_page": 17,
+        "date_matches_quote": null
+      }
+    }
+  ],
+  "reasons": [
+    "Core project scope directly aligns with our specialization in AI integration, workflow automation, and compliance tooling.",
+    "Delivery is remote-friendly, requiring only the Project Manager to attend the project kickoff in person.",
+    "The budget of $420,000 and phased delivery timeline are well suited for a small senior engineering team."
+  ],
+  "fast_no_bid": false,
+  "facts": {
+    "agency": "City of Port Alder Department of Permitting & Inspections",
+    "solicitation_number": "PA-DPI-2026-114",
+    "title": "AI-Assisted Permit Intake and Review Automation Platform",
+    "summary": "The City of Port Alder is seeking a qualified firm to design, build, deploy, and support a cloud-hosted, AI-assisted platform for permit intake and plan review. The goal is to streamline the permit application process, reducing incomplete submissions and cutting down the median time from submission to first review. The platform will automate completeness checks, assist plan reviewers by extracting data and flagging potential code conflicts, and provide applicant support without replacing licensed human reviewers.",
+    "scope_of_work": "The Contractor will deliver a cloud-hosted platform that: (a) guides applicants through submitting complete permit packages; (b) uses AI to perform completeness checks within 2 minutes and extract key data; (c) routes packages to review queues; and (d) assists City plan reviewers by flagging code conflicts with citations. The project includes an applicant portal, a conversational assistant (English and Spanish mandatory; Vietnamese and Russian desired), a staff dashboard, notifications, two-way integration with PermitCore v9, GIS lookup, state contractor license checking, data migration of ~3,200 open applications (1.4 TB), export for Power BI reporting, user training, and post-launch support/stabilization. Work is divided into Phase 1 (Discovery), Phase 2 (Pilot release for 10 permit types), Phase 3 (Full release), and Phase 4 (Stabilization). Field inspection mobile apps, replacement of PermitCore, permit fee payment processing, and hardware procurement are out of scope.",
+    "contract_type": "Not stated",
+    "contract_value": "Not-to-exceed amount of $420,000 for implementation (Phases 1\u20134) plus the first two years of subscription, hosting and support.",
+    "period_of_performance": "Three (3) years from Notice to Proceed, with two optional one-year renewals at the City's discretion.",
+    "place_of_performance": "The Project Manager must attend the project kickoff in person in Port Alder. All other work may be performed remotely from within the United States. All City data must be stored and processed in data centers located in the United States.",
+    "how_to_submit": "Submit through Port Alder Bids. The proposal must consist of one text-searchable PDF of no more than 30 pages (excluding attachments and cost proposal) containing Tabs 1\u20138. Submit the cost proposal (Attachment C) as a separate file. Emailed, faxed, or paper proposals will not be accepted. Specific page limits within the PDF: Tab 1 (2 pages), Tab 2 (4 pages), Tab 3 (12 pages), Tab 4 (5 pages), Tab 5 (3 pages, excluding resumes), Tab 6 (2 pages), Tab 7 (2 pages), Tab 8 (no limit stated). Do not include pricing anywhere else in the proposal except Attachment C."
+  },
+  "score_factors": [
+    {
+      "factor": "Core Technical Match",
+      "points": 2,
+      "reason": "The scope focuses on AI automation platforms, web/mobile intake portals, and compliance tooling, matching our primary build capabilities."
+    },
+    {
+      "factor": "Remote-Friendly Delivery",
+      "points": 1,
+      "reason": "All work except the project kickoff can be performed remotely from within the United States."
+    },
+    {
+      "factor": "Budget and Team Scope Fit",
+      "points": 1,
+      "reason": "$420,000 budget for implementation and initial support is appropriate for a small senior team."
+    },
+    {
+      "factor": "Eligibility & Past Performance Verification Required",
+      "points": -1,
+      "reason": "Must confirm mandatory qualifications such as 3 years in business, 3 past references, and SOC 2 Type II hosting environment."
+    }
+  ],
+  "deal_breakers": [],
+  "what_would_change_decision": [
+    "We do not meet the minimum requirement of 3 years in business.",
+    "We lack the required 3 references, including at least two past projects delivering AI/workflow software for public-sector or regulated clients.",
+    "We cannot provide a hosting environment with a valid SOC 2 Type II or FedRAMP authorization.",
+    "We cannot meet the mandatory insurance coverage requirements ($1M/$2M CGL, $2M E&O, $2M Cyber).",
+    "We do not qualify under the Small Business self-certification threshold (<100 employees and <$15M gross receipts).",
+    "Our Project Manager cannot attend the kickoff meeting in person in Port Alder."
+  ],
+  "open_questions": [
+    "Will sample security documentation submitted under Tab 8 count toward the overall 30-page PDF limit specified in Section 5.2?",
+    "How should proposers code compliance in Attachment D for requirement FR-7, which lists email notifications as mandatory and SMS notifications as desired within a single row?"
+  ],
+  "ambiguities": [
+    {
+      "issue": "The table of contents on Page 2 lists Section 7 as 'Budget, Contract Term and Payment' and Section 8 as 'Insurance', but the main text section heading on Page 11 lists '7. BUDGET, CONTRACT TERM AND PAYMENT' and on Page 12 lists '8. INSURANCE' while using numbering '9. GENERAL TERMS AND CONDITIONS' for Section 9, creating slight structural mapping ambiguity, though titles match.",
+      "page": 2
+    },
+    {
+      "issue": "Section 3.2 lists requirement FR-7 Notifications as type 'M / D' (Email mandatory, SMS desired), but in Attachment D (Requirements Response Matrix) on Page 16, it is listed as 'M / D' without separate rows, leaving it ambiguous how to code compliance for the mandatory versus desired portion.",
+      "page": 6
+    },
+    {
+      "issue": "Section 5.2 specifies a 30-page limit for the PDF excluding attachments and cost proposal, and lists page limits per tab totaling 30 pages (Tabs 1-7). However, Tab 8 includes 'Attachments A, B, D and E, and sample security documentation' without specifying whether sample security documentation counts toward the 30-page limit or is considered an excluded attachment.",
+      "page": 10
+    }
+  ],
+  "warnings": [],
+  "meta": {
+    "pages": 17,
+    "file_sha256": "ee8efac041be5404fb1008c8eef822b7d580e002e0344fbcb39995b5b9e5834a",
+    "extract_model": "gemini-3.6-flash",
+    "decide_model": "gemini-3.6-flash",
+    "bid_threshold": 6,
+    "seconds": 37.2
+  }
+}

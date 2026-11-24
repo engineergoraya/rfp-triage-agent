@@ -101,8 +101,10 @@ here. The 20-per-day figure above is what the API itself reported for our projec
 How the app handles limits ([triage/llm.py](triage/llm.py)):
 - **Daily quota used up** (429 naming a per-day quota): waiting can't help, so skip to the next model.
 - **Per-minute limit** (429 / `RESOURCE_EXHAUSTED`): wait 15 s, 30 s, 60 s on the same model, then fail
-  that request with a clear message. This is the only place rate-limit retries happen, so they never multiply.
+  that request with a clear message. (The queue page says up front that these waits can make a file slower.) This is the only place rate-limit retries happen, so they never multiply.
 - **Google busy** (5xx): wait 2 s, 5 s, then try the next model.
+- **No answer within 180 s** (the SDK has no timeout by default; one request hung for 10+ minutes in
+  testing): try the next model.
 - **Bad API key or invalid request:** no retry at all.
 
 `temperature=0` throughout. `minimal` thinking: the task is careful reading, not multi-step reasoning,

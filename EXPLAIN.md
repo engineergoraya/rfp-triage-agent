@@ -33,11 +33,14 @@ Streamlit reruns this script from top to bottom every time the user interacts. N
 - **`get_api_key()`**: reads `GEMINI_API_KEY` from the environment (local development) or from `st.secrets`
   (Streamlit Cloud's secret store, or the git-ignored `.streamlit/secrets.toml`). Returns `""` if
   neither exists. The page then shows an error and stops.
-- **`cached_triage(file_hash, model, version, _pdf_bytes, _api_key, _progress)`**: wraps `run_triage` in
+- **`cached_triage(file_hash, model, version, _pdf_bytes, _api_key)`**: wraps `run_triage` in
   `@st.cache_data`. Streamlit builds the cache key from the arguments, but **arguments starting with `_`
   are not hashed**, so the key is only *(SHA-256 of the file, model name, `REPORT_VERSION`)*. The version
   is bumped whenever the report's shape changes (version 2 added the date `kind`), so an old cached report
-  missing the new fields is never reused. `_progress` lets the queue show status lines. The same PDF uploaded again returns instantly and
+  missing the new fields is never reused. **Nothing inside it may draw on the page** (`st.*`): Streamlit
+  records such calls and replays them on a cache hit, and if they drew on an element created outside the
+  function (like the queue's status line) the replay crashes. I hit exactly that bug: the second ranking
+  of the same files failed. Version 3 throws away the entries saved while that bug existed. The same PDF uploaded again returns instantly and
   costs no API quota. `persist="disk"` keeps the cache across app restarts.
 - **`render_report(report, key)`**: draws the report. `key` makes the widget IDs unique (`single`, or
   `queue-1`, `queue-2`…), because Streamlit refuses two download buttons with the same ID on one page. It shows a green (BID) or red (NO BID) banner, then three
@@ -57,10 +60,9 @@ Streamlit reruns this script from top to bottom every time the user interacts. N
   result in `st.session_state["queue"]`. Everything below the button reads from session state, so later
   reruns (an expander opened, the CSV downloaded) never call the model. It shows the recommendation
   line, the table, the CSV button, *Clear results*, and one expander per RFP with `render_report`.
-  - **`show(message, fraction)`** (inside it): updates the status line and progress bar. The pipeline's
-    two extraction calls run in worker threads, and Streamlit only lets a thread draw if it carries the
-    page's "script run context". `add_script_run_ctx` attaches it, so "Waiting for the free-tier rate
-    limit…" can appear even when the wait happens inside a worker thread.
+  - **`show(message, fraction)`** (inside it): `run_queue` calls it before each file to update the status
+    line ("Reading 2 of 3: file.pdf", plus a note that rate-limit waits can make a file slower) and the
+    progress bar. It runs outside the cached function, so it is safe to draw.
 - **Bottom of the file (the page itself)**: title, key check, then a **radio button** (not `st.tabs`)
   choosing the view. With a radio only the chosen view runs, and the choice survives reruns.
 
@@ -207,7 +209,9 @@ which libraries we use import. Every function takes `today` as a parameter, so t
 
 `RATE_LIMIT_BACKOFF_SECONDS = [15, 30, 60]`. A 429 that names a per-*day* quota still skips to the next
 model (waiting can't help). Any other 429 / `RESOURCE_EXHAUSTED` is the per-minute limit: call
-`on_wait(seconds)` (the UI shows "Waiting for the free-tier rate limit…"), sleep, retry the same model;
+`on_wait(seconds)` (the command-line scripts print "Waiting for the free-tier rate limit…"; the web
+page only says up front that waits can happen, because drawing from inside the cached triage
+breaks Streamlit's cache replay), sleep, retry the same model;
 after the third wait, raise `LLMError`. That is the only place rate-limit retries happen, so they never
 multiply with the model fallback loop. 401/403 and "API key" errors are never retried.
 
@@ -394,3 +398,9 @@ multiply with the model fallback loop. 401/403 and "API key" errors are never re
 10. **How is the Word file made without a library?**
     A `.docx` is a zip. Three XML files (content types, a relationships file, the document) are the minimum
     Word, Google Docs and LibreOffice accept. Text is escaped and stripped of control characters.
+
+11. **What was the hardest bug?**
+    Ranking the same files twice crashed. Streamlit's `st.cache_data` records any `st.*` call made inside
+    a cached function and replays it on a cache hit. My progress callback drew on the queue's status line,
+    which was created outside the function, so the replay had nothing to draw on. The fix: never draw
+    inside the cached function. A test now ranks, clears and ranks again.

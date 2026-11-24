@@ -3,11 +3,9 @@
 import hashlib
 import json
 import os
-import threading
 from datetime import date
 
 import streamlit as st
-from streamlit.runtime.scriptrunner import add_script_run_ctx, get_script_run_ctx
 
 from triage.calendar_export import build_ics, count_exportable
 from triage.evidence import summarize
@@ -23,7 +21,8 @@ STATUS_LABEL = {"verified": "✅ verified", "wrong_page": "⚠️ wrong page", "
 STATUS_ORDER = {"not_found": 0, "wrong_page": 1, "verified": 2}  # riskiest first
 # Part of the cache key: bump it when the report's shape changes, so old cached reports are not reused.
 # Version 2 added the date `kind` and `mandatory` fields that the Monday queue relies on.
-REPORT_VERSION = 2
+# Version 3 drops entries saved while a progress callback drew inside cached_triage (see below).
+REPORT_VERSION = 3
 
 
 def get_api_key() -> str:
@@ -38,12 +37,13 @@ def get_api_key() -> str:
 
 
 @st.cache_data(show_spinner=False, max_entries=50, persist="disk")
-def cached_triage(file_hash: str, model: str, version: int, _pdf_bytes: bytes, _api_key: str,
-                  _progress=None) -> dict:
+def cached_triage(file_hash: str, model: str, version: int, _pdf_bytes: bytes, _api_key: str) -> dict:
     """Cache by file hash (+ model): re-uploading the same PDF costs no API quota (the free tier
     allows only 20 requests per model per day). persist="disk" keeps results across app restarts.
-    Arguments starting with "_" are not hashed by Streamlit, so the key is only (file_hash, model, version)."""
-    return run_triage(_pdf_bytes, _api_key, _progress) if _progress else run_triage(_pdf_bytes, _api_key)
+    Arguments starting with "_" are not hashed by Streamlit, so the key is only (file_hash, model, version).
+    Never draw anything (st.*) in here: Streamlit records it and replays it on a cache hit, which
+    crashes if it drew on an element created outside this function."""
+    return run_triage(_pdf_bytes, _api_key)
 
 
 def render_report(report: dict, key: str = "single") -> None:
@@ -187,18 +187,16 @@ def render_queue(api_key: str) -> None:
                    "fast no-bid). Files run one at a time; already-analysed files come from the cache.")
         if st.button("Rank these RFPs", type="primary"):
             progress_bar, status = st.progress(0.0), st.empty()
-            ctx = get_script_run_ctx()
 
-            def show(message: str, fraction: float | None = None) -> None:
-                # Called from the pipeline's worker threads too; attach the Streamlit context so they can draw.
-                add_script_run_ctx(threading.current_thread(), ctx)
-                status.caption(message)
-                if fraction is not None:
-                    progress_bar.progress(fraction)
+            def show(message: str, fraction: float) -> None:
+                # Called by run_queue before each file (outside the cached function, so it is safe).
+                status.caption(f"{message} · usually under a minute per new file; longer if Google's "
+                               "free-tier rate limit makes us wait (15 s, 30 s, 60 s)")
+                progress_bar.progress(fraction)
 
             def triage_one(pdf_bytes: bytes) -> dict:
                 file_hash = hashlib.sha256(pdf_bytes).hexdigest()
-                return cached_triage(file_hash, models_to_try()[0], REPORT_VERSION, pdf_bytes, api_key, show)
+                return cached_triage(file_hash, models_to_try()[0], REPORT_VERSION, pdf_bytes, api_key)
 
             # Kept in session_state: opening an expander or downloading the CSV reruns the script,
             # and must not call the model again.
@@ -227,7 +225,7 @@ def render_queue(api_key: str) -> None:
                "earlier deadline, filename.")
     c1, c2 = st.columns(2)
     c1.download_button("⬇️ Download CSV", data=to_csv(rows), file_name="monday-queue.csv", mime="text/csv")
-    if c2.button("Clear results"):
+    if c2.button("Clear results", key="clear_queue"):
         del st.session_state["queue"]
         st.rerun()
     for row in rows:

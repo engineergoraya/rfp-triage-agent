@@ -107,3 +107,25 @@ def test_queue_shows_failure_reason_above_the_table():
         at.button[0].click().run()
     assert any("No BIDs" in i.value for i in at.info)
     assert sum("daily free quota used up" in w.value for w in at.warning) == 2
+
+
+def test_queue_twice_replays_cache_without_error():
+    """Regression: ranking the same files a second time (a cache hit) used to crash, because a
+    progress message drawn inside the cached function could not be replayed."""
+    def fake_run_triage(pdf_bytes, api_key, progress=lambda message: None):
+        progress("Extracting...")
+        return SAMPLE_REPORT
+
+    at = AppTest.from_file(APP, default_timeout=30)
+    files = [("a.pdf", b"%PDF-1.4 replay one", "application/pdf"), ("b.pdf", b"%PDF-1.4 replay two", "application/pdf")]
+    with patch.dict("os.environ", {"GEMINI_API_KEY": "test-key", "QUEUE_PAUSE_SECONDS": "0"}), \
+         patch("triage.pipeline.run_triage", side_effect=fake_run_triage):
+        at.run()
+        at.radio(key="view").set_value("Monday queue").run()
+        at.file_uploader(key="queue_files").set_value(files).run()
+        at.button[0].click().run()                       # first run: computes and caches
+        at.button(key="clear_queue").click().run()
+        at.button[0].click().run()                       # second run: served from the cache
+    assert not at.exception
+    assert not any("could not be analysed" in w.value for w in at.warning), [w.value for w in at.warning]
+    assert len(at.expander) == 2

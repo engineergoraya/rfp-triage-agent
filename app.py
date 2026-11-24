@@ -176,6 +176,11 @@ def render_single(api_key: str) -> None:
         render_report(report)
 
 
+def file_signature(files) -> list[str]:
+    """Which files a ranking was made from (content hashes), to spot when the upload list changes."""
+    return sorted(hashlib.sha256(f.getvalue()).hexdigest() for f in files)
+
+
 def render_queue(api_key: str) -> None:
     """Monday queue view: 2-5 RFPs in, one ranked table out. Ranking is plain code (triage/ranking.py)."""
     st.write("Three new RFPs on a Monday? Upload 2 to 5 and see which one deserves the week of proposal writing.")
@@ -203,12 +208,15 @@ def render_queue(api_key: str) -> None:
             st.session_state["queue"] = run_queue(
                 [(f.name, f.getvalue()) for f in files], triage_one, date.today(), show,
                 pause_seconds=float(os.environ.get("QUEUE_PAUSE_SECONDS", "2")))
+            st.session_state["queue_signature"] = file_signature(files)
             progress_bar.progress(1.0)
             status.empty()
 
     result = st.session_state.get("queue")
     if not result:
         return
+    if file_signature(files) != st.session_state.get("queue_signature"):
+        st.info("The uploaded files changed since this ranking. Click **Rank these RFPs** to update it.")
     rows = result["rows"]
     line = recommendation_line(rows)
     (st.success if line.startswith("Start with") else st.info)(line)

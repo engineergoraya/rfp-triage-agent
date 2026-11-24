@@ -129,3 +129,65 @@ def test_queue_twice_replays_cache_without_error():
     assert not at.exception
     assert not any("could not be analysed" in w.value for w in at.warning), [w.value for w in at.warning]
     assert len(at.expander) == 2
+
+
+def text_pdf(text: str) -> bytes:
+    """A small PDF with real text, so the real PDF reader and pipeline run on it. A random marker
+    makes every test run's files new, so the app's on-disk cache never answers instead of the pipeline."""
+    import uuid
+    from reportlab.pdfgen import canvas
+    buffer = io.BytesIO()
+    pdf = canvas.Canvas(buffer)
+    pdf.drawString(50, 30, uuid.uuid4().hex)
+    for page in range(2):
+        for line in range(20):
+            pdf.drawString(50, 800 - 20 * line, f"{text} page {page + 1} line {line}: proposals are due soon.")
+        pdf.showPage()
+    pdf.save()
+    return buffer.getvalue()
+
+
+def fake_generate_json(api_key, prompt, schema, system, on_wait=None):
+    """Answers every LLM call from the saved sample report (the real pipeline does everything else)."""
+    from triage.schemas import Decision, FactsAndDates, RequirementList
+    strip = lambda items: [{k: v for k, v in x.items() if k != "evidence"} for x in items]  # noqa: E731
+    dates = [dict(d, kind=d.get("kind", "other"), mandatory=d.get("mandatory", False))
+             for d in strip(SAMPLE_REPORT["deadlines"])]
+    r = SAMPLE_REPORT
+    if schema is FactsAndDates:
+        return FactsAndDates(facts=r["facts"], dates=dates, ambiguities=r["ambiguities"],
+                             clearly_not_our_work=False, not_our_work_reasons=[]), "fake"
+    if schema is RequirementList:
+        return RequirementList(requirements=strip(r["requirements"])), "fake"
+    return Decision(score_factors=r["score_factors"], fit_score=r["fit_score"], decision=r["decision"],
+                    reasons=r["reasons"], deal_breakers=r["deal_breakers"],
+                    what_would_change_decision=r["what_would_change_decision"],
+                    open_questions=r["open_questions"]), "fake"
+
+
+def test_queue_with_five_files_duplicate_and_scanned_pdf():
+    one, two, three = text_pdf("Alpha RFP"), text_pdf("Beta RFP"), text_pdf("Gamma RFP")
+    files = [("alpha.pdf", one, "application/pdf"), ("beta.pdf", two, "application/pdf"),
+             ("gamma.pdf", three, "application/pdf"), ("alpha-copy.pdf", one, "application/pdf"),
+             ("scan.pdf", blank_pdf(), "application/pdf")]
+    at = AppTest.from_file(APP, default_timeout=60)
+    with patch.dict("os.environ", {"GEMINI_API_KEY": "test-key", "QUEUE_PAUSE_SECONDS": "0"}), \
+         patch("triage.pipeline.generate_json", side_effect=fake_generate_json) as llm:
+        at.run()
+        at.radio(key="view").set_value("Monday queue").run()
+        at.file_uploader(key="queue_files").set_value(files).run()
+        assert any("Up to 15 model calls" in c.value for c in at.caption)
+        at.button[0].click().run()
+        first_calls = llm.call_count
+        assert not at.exception
+        assert len(at.expander) == 3                                   # alpha, beta, gamma
+        assert any("Skipped duplicate: alpha-copy.pdf" in i.value for i in at.info)
+        assert any("scan.pdf" in w.value and "scanned" in w.value for w in at.warning)
+        assert first_calls == 9                                        # 3 new files x 3 calls; scan makes none
+
+        at.button(key="clear_queue").click().run()
+        at.button[0].click().run()                                     # same files again: all from the cache
+        assert not at.exception and llm.call_count == first_calls and len(at.expander) == 3
+
+        at.file_uploader(key="queue_files").set_value(files[:3]).run()  # user removes two files
+        assert any("files changed since this ranking" in i.value for i in at.info)

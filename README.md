@@ -55,7 +55,7 @@ The key is read from the `GEMINI_API_KEY` environment variable first, then from 
 Other commands:
 
 ```bash
-pytest -q                                          # 50 offline tests, no API calls
+pytest -q                                          # 55 offline tests, no API calls
 python scripts/run_samples.py docs/samples/*.pdf   # run the agent from the CLI, timed, JSON to output/
 python scripts/eval_queue.py docs/samples/*.pdf    # rank the samples through the Monday queue (real API)
 python scripts/eval_queue.py --diff output         # regression diff of output/ against eval/baseline/
@@ -199,6 +199,8 @@ the queue answers the question they actually have: "which one first?"
   through the same cached `run_triage` as single mode, so re-ranking already-seen files is instant and free.
 - **A failed file never stops the queue.** A scanned PDF, a rate limit that outlasts the retries or
   invalid JSON becomes a "Failed" row with the reason. Identical files (same SHA-256) run once.
+  Two *different* files with the same name are kept apart (`RFP.pdf`, `RFP.pdf (2)`). If the uploaded
+  files change after ranking, the page says so and asks you to rank again.
 - **The ranking is plain code, not the LLM:** live BIDs, then live NO_BIDs, then Expired and Failed; within
   a group, higher fit score, then the earlier proposal deadline ("Not stated" last), then filename. Code
   is explainable and gives the same order every time.
@@ -243,7 +245,7 @@ dependency needed).
 
 ## Testing and results
 
-- **50 offline pytest tests** ([tests/](tests/)), including 20 for the Monday queue, rate limits and Word
+- **55 offline pytest tests** ([tests/](tests/)), including 20 for the Monday queue, rate limits and Word
   export: sort order and tie-breaks, days left and Expired with an injected date, "Not stated" deadlines,
   the proposal-deadline choice, the recommendation line, CSV formula injection, a failing file not stopping
   the queue, duplicates run once, the 5-file cap, 429 → 15 s → 30 s → success, no retry on a bad key, and
@@ -295,7 +297,7 @@ triage/evidence.py         bonus 1: quote verification (no AI)
 triage/ranking.py          bonus 2: Monday queue (run files one by one, rank, CSV); no AI
 triage/calendar_export.py  bonus 3: .ics export
 triage/report_docx.py      bonus 4: Word report, standard library only
-tests/                     50 offline tests
+tests/                     55 offline tests
 scripts/                   CLI runner, queue eval + regression diff, live UI smoke test, synthetic RFP generator
 docs/samples/              the two idiaz.io sample RFPs; docs/synthetic/ my two test RFPs
 ```

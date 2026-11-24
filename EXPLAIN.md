@@ -54,6 +54,8 @@ Streamlit reruns this script from top to bottom every time the user interacts. N
   Our own errors (`PdfError`, `LLMError`) are shown as friendly `st.error` messages. Anything unexpected
   is still shown as an error rather than a blank page. It `return`s (never `st.stop()`s) when no file is
   uploaded, so it can't block the other view.
+- **`file_signature(files)`**: the sorted content hashes of the uploaded files. Saved with a ranking, so
+  if the user adds or removes files afterwards the page says "the uploaded files changed".
 - **`render_queue(api_key)`**: the Monday queue view. A multi-file uploader (more than 5 → error, no
   button), a caption with the maximum number of model calls, and a *Rank these RFPs* button. The button
   calls `ranking.run_queue` with `triage_one` (the same cached triage as single mode) and stores the
@@ -193,7 +195,8 @@ which libraries we use import. Every function takes `today` as a parameter, so t
   on text, so `-4` days left stays a number), written with the `csv` module as UTF-8 with a BOM so Excel
   reads accents correctly.
 - **`run_queue(files, triage_fn, today, progress, pause_seconds, sleep)`**: loops over the files **one at
-  a time**: skip a duplicate SHA-256, pause between files, call `triage_fn`, and turn any exception into a
+  a time**: skip a duplicate SHA-256, give a repeated *name* (different content) a suffix like
+  `RFP.pdf (2)` because names key the reports, pause between files, call `triage_fn`, and turn any exception into a
   Failed row instead of stopping. `triage_fn` and `sleep` are parameters, so tests pass fakes and no real
   model call or real wait ever happens in tests.
 
@@ -326,7 +329,7 @@ multiply with the model fallback loop. 401/403 and "API key" errors are never re
 
 12. **How did you test accuracy?**
     I read both sample RFPs first and wrote down the right dates and decision. Then I ran the agent and
-    compared every date by hand, wrote synthetic RFPs with known traps, and wrote offline tests (50 now) for all
+    compared every date by hand, wrote synthetic RFPs with known traps, and wrote offline tests (55 now) for all
     the non-LLM logic and the UI.
 
 13. **Why does the janitorial RFP still list requirements if it's a fast no-bid?**

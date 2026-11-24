@@ -132,6 +132,11 @@ def run_queue(files: list[tuple[str, bytes]], triage_fn, today: date, progress=l
         if digest in seen:
             skipped.append(f"{name} (same file as {seen[digest]})")
             continue
+        # Two different PDFs can share a name (e.g. two downloads called RFP.pdf). Names are the keys
+        # for the reports, so make each one unique: "RFP.pdf", "RFP.pdf (2)", ...
+        base, n = name, 2
+        while name in seen.values():
+            name, n = f"{base} ({n})", n + 1
         seen[digest] = name
         if len(seen) > 1 and pause_seconds:
             sleep(pause_seconds)  # small gap between files, kinder to the per-minute limit

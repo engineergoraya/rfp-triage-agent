@@ -197,3 +197,12 @@ def test_docx_is_a_valid_zip_with_escaped_text():
         xml = docx.read("word/document.xml").decode()
         assert set(docx.namelist()) == {"[Content_Types].xml", "_rels/.rels", "word/document.xml"}
     assert "A &amp; B &lt;test&gt;" in xml and "\x0c" not in xml
+
+
+def test_different_files_with_the_same_name_are_kept_apart():
+    reports = {b"one": report("BID", 9, agency="Agency One"), b"two": report("NO_BID", 2, agency="Agency Two")}
+    result = run_queue([("RFP.pdf", b"one"), ("RFP.pdf", b"two")], reports.get, TODAY, pause_seconds=0)
+    names = [r["File"] for r in result["rows"]]
+    assert names == ["RFP.pdf", "RFP.pdf (2)"]
+    assert result["reports"]["RFP.pdf"]["facts"]["agency"] == "Agency One"
+    assert result["reports"]["RFP.pdf (2)"]["facts"]["agency"] == "Agency Two"

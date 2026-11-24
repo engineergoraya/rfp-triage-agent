@@ -31,7 +31,7 @@ def read_pdf(pdf_bytes: bytes) -> tuple[list[str], str]:
     return pages, tagged
 
 
-def extract(api_key: str, tagged_text: str) -> tuple[Extraction, str]:
+def extract(api_key: str, tagged_text: str, on_wait=None) -> tuple[Extraction, str]:
     """Two focused LLM calls at the same time: (a) facts + dates + gate, (b) requirements only.
 
     One big call missed requirements and its output was long (slow). Two smaller jobs gave better
@@ -40,9 +40,10 @@ def extract(api_key: str, tagged_text: str) -> tuple[Extraction, str]:
     facts_prompt = FACTS_PROMPT.format(profile=COMPANY_PROFILE, document=tagged_text)
     requirements_prompt = REQUIREMENTS_PROMPT.format(document=tagged_text)
     with ThreadPoolExecutor(max_workers=2) as pool:
-        facts_job = pool.submit(generate_json, api_key, facts_prompt, FactsAndDates, SYSTEM_INSTRUCTION)
+        facts_job = pool.submit(generate_json, api_key, facts_prompt, FactsAndDates, SYSTEM_INSTRUCTION,
+                                on_wait)
         requirements_job = pool.submit(generate_json, api_key, requirements_prompt, RequirementList,
-                                       SYSTEM_INSTRUCTION)
+                                       SYSTEM_INSTRUCTION, on_wait)
         facts, facts_model = facts_job.result()
         requirements, requirements_model = requirements_job.result()
 
@@ -139,7 +140,7 @@ def find_inconsistency(decision: Decision) -> str:
     return ""
 
 
-def decide(api_key: str, extraction: Extraction) -> tuple[Decision, str]:
+def decide(api_key: str, extraction: Extraction, on_wait=None) -> tuple[Decision, str]:
     """LLM call 2. If the answer breaks the scoring rules, ask once more with the problem spelled
     out, so the reasons are rewritten to match the corrected decision (not just relabelled)."""
     def ask(correction: str):
@@ -147,7 +148,7 @@ def decide(api_key: str, extraction: Extraction) -> tuple[Decision, str]:
             profile=COMPANY_PROFILE, baseline=BASELINE_SCORE, threshold=BID_THRESHOLD,
             correction=correction, extraction_json=extraction.model_dump_json(indent=1),
         )
-        return generate_json(api_key, prompt, Decision, SYSTEM_INSTRUCTION)
+        return generate_json(api_key, prompt, Decision, SYSTEM_INSTRUCTION, on_wait)
 
     decision, model = ask("")
     problem = find_inconsistency(decision)
@@ -181,13 +182,14 @@ def run_triage(pdf_bytes: bytes, api_key: str, progress=lambda message: None) ->
     """Run the whole agent. `progress` is an optional callback for UI status messages."""
     started = time.time()
     stage_seconds = {}  # shown in the report meta, so slow runs can be explained
+    on_wait = lambda seconds: progress(f"Waiting for the free-tier rate limit ({seconds} s)...")  # noqa: E731
 
     progress("Reading the PDF...")
     pages, tagged = read_pdf(pdf_bytes)
 
     progress(f"Extracting facts, dates and requirements from {len(pages)} pages (2 parallel calls)...")
     t = time.time()
-    extraction, extract_model = extract(api_key, tagged)
+    extraction, extract_model = extract(api_key, tagged, on_wait)
     stage_seconds["extract"] = round(time.time() - t, 1)
     warnings = clean_dates(extraction)
 
@@ -205,7 +207,7 @@ def run_triage(pdf_bytes: bytes, api_key: str, progress=lambda message: None) ->
     else:
         progress("Scoring fit and making the bid decision...")
         t = time.time()
-        decision, decide_model = decide(api_key, extraction)
+        decision, decide_model = decide(api_key, extraction, on_wait)
         stage_seconds["decide"] = round(time.time() - t, 1)
         warnings += enforce_consistency(decision)
 

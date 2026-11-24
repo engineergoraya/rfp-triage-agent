@@ -28,6 +28,9 @@ class Facts(BaseModel):
     how_to_submit: str
 
 
+DateKind = Literal["proposal_due", "questions_due", "site_visit", "start_date", "other"]
+
+
 class DateItem(BaseModel):
     what: str = Field(description="e.g. 'Questions due', 'Proposal due', 'Site visit', 'Work start'.")
     date: str = Field(description="YYYY-MM-DD only if year, month and day are all explicit, else 'Not stated'.")
@@ -37,6 +40,9 @@ class DateItem(BaseModel):
     page: int
     note: str = Field(description="Why the date is incomplete or ambiguous; empty string if not needed.")
     superseded: bool = Field(description="True if an addendum or revision replaced this date with a new one.")
+    # Extra fields for the Monday queue: code picks dates by `kind`, never by matching the free-text `what`.
+    kind: DateKind = Field(description="proposal_due, questions_due, site_visit, start_date or other.")
+    mandatory: bool = Field(description="True only if the document says attending or doing this is mandatory.")
 
 
 RequirementCategory = Literal[

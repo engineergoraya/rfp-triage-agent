@@ -69,7 +69,7 @@ DEADLINES = [
      "quote": "Proposals are due January 15, 2027, at 2:00 PM; late bids rejected"},
     {"what": "Contract award", "date": "Not stated", "time": "Not stated", "page": 3, "quote": "February 2027"},
     {"what": "Proposal due (old)", "date": "2027-01-08", "time": "Not stated", "page": 1, "quote": "x",
-     "superseded": True},
+     "superseded": True, "kind": "other", "mandatory": False},
 ]
 
 
@@ -95,9 +95,9 @@ def make_extraction(not_ours: bool) -> Extraction:
                                              "place_of_performance", "how_to_submit"]},
         "dates": [{"what": "Proposal due", "date": "2027-01-15", "time": "2:00 PM ET",
                    "as_written": "January 15, 2027", "quote": "Proposals are due January 15, 2027", "page": 1, "note": "",
-                   "superseded": False},
+                   "superseded": False, "kind": "other", "mandatory": False},
                   {"what": "Award", "date": "February 2027", "time": "Not stated",
-                   "as_written": "February 2027", "quote": "February 2027", "page": 1, "note": "", "superseded": False}],
+                   "as_written": "February 2027", "quote": "February 2027", "page": 1, "note": "", "superseded": False, "kind": "other", "mandatory": False}],
         "requirements": [{"category": "license_or_registration", "requirement": "SAM.gov registration",
                           "mandatory": True, "quote": "registered in SAM.gov with an active Unique Entity ID", "page": 2}],
         "ambiguities": [],
@@ -122,7 +122,7 @@ def run_with_mocks(extraction, decision=None):
         Decision: decision,
     }
 
-    def fake_generate_json(api_key, prompt, schema, system):
+    def fake_generate_json(api_key, prompt, schema, system, on_wait=None):
         calls.append(schema.__name__)
         return answers[schema], "fake-model"
 
@@ -178,7 +178,7 @@ def test_decide_retries_once_when_model_breaks_the_rules():
     replies = [bad, GOOD_DECISION.model_copy(deep=True)]
     prompts = []
 
-    def fake_generate_json(api_key, prompt, schema, system):
+    def fake_generate_json(api_key, prompt, schema, system, on_wait=None):
         prompts.append(prompt)
         return replies.pop(0), "fake-model"
 

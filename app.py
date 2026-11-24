@@ -203,7 +203,7 @@ def render_queue(api_key: str) -> None:
                 file_hash = hashlib.sha256(pdf_bytes).hexdigest()
                 return cached_triage(file_hash, models_to_try()[0], REPORT_VERSION, pdf_bytes, api_key)
 
-            # Kept in session_state: opening an expander or downloading the CSV reruns the script,
+            # Kept in session_state: picking another report or downloading the CSV reruns the script,
             # and must not call the model again.
             st.session_state["queue"] = run_queue(
                 [(f.name, f.getvalue()) for f in files], triage_one, date.today(), show,
@@ -236,10 +236,17 @@ def render_queue(api_key: str) -> None:
     if c2.button("Clear results", key="clear_queue"):
         del st.session_state["queue"]
         st.rerun()
-    for row in rows:
-        if row["File"] in result["reports"]:
-            with st.expander(f"#{row['Rank']} {row['File']}: {row['Decision']} {row['Fit score']}/10"):
-                render_report(result["reports"][row["File"]], key=f"queue-{row['Rank']}")
+
+    # The full single-RFP report (Report / Evidence check / JSON tabs and all downloads) for one
+    # RFP at a time, chosen here. Defaults to the top-ranked one. Failed files have no report.
+    ranked = [row for row in rows if row["File"] in result["reports"]]
+    if ranked:
+        st.subheader("Full report")
+        by_name = {row["File"]: row for row in ranked}
+        name = st.selectbox(
+            "Show the full report for", list(by_name), key="queue_report_choice",
+            format_func=lambda n: f"#{by_name[n]['Rank']} {n}: {by_name[n]['Decision']} {by_name[n]['Fit score']}/10")
+        render_report(result["reports"][name], key=f"queue-{by_name[name]['Rank']}")
 
 
 # ------------------------------- Page -------------------------------

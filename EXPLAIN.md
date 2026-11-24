@@ -60,8 +60,10 @@ Streamlit reruns this script from top to bottom every time the user interacts. N
   button), a caption with the maximum number of model calls, and a *Rank these RFPs* button. The button
   calls `ranking.run_queue` with `triage_one` (the same cached triage as single mode) and stores the
   result in `st.session_state["queue"]`. Everything below the button reads from session state, so later
-  reruns (an expander opened, the CSV downloaded) never call the model. It shows the recommendation
-  line, the table, the CSV button, *Clear results*, and one expander per RFP with `render_report`.
+  reruns (another report picked, the CSV downloaded) never call the model. It shows the recommendation
+  line, the table, the CSV button, *Clear results*, and a **Full report** section: a select box
+  (default: rank 1) and `render_report` for the chosen RFP, so every tab and download from single mode
+  is there. Options are file names (strings), so a new batch can't leave the picker pointing at nothing.
   - **`show(message, fraction)`** (inside it): `run_queue` calls it before each file to update the status
     line ("Reading 2 of 3: file.pdf", plus a note that rate-limit waits can make a file slower) and the
     progress bar. It runs outside the cached function, so it is safe to draw.
@@ -329,7 +331,7 @@ multiply with the model fallback loop. 401/403 and "API key" errors are never re
 
 12. **How did you test accuracy?**
     I read both sample RFPs first and wrote down the right dates and decision. Then I ran the agent and
-    compared every date by hand, wrote synthetic RFPs with known traps, and wrote offline tests (55 now) for all
+    compared every date by hand, wrote synthetic RFPs with known traps, and wrote offline tests (56 now) for all
     the non-LLM logic and the UI.
 
 13. **Why does the janitorial RFP still list requirements if it's a fast no-bid?**
@@ -395,7 +397,7 @@ multiply with the model fallback loop. 401/403 and "API key" errors are never re
    left, the latest is used and the row gets a ⚠️ so a human checks it.
 
 9. **Why does `st.session_state` matter here?**
-   Streamlit reruns the whole script on every click. Without session state, opening an expander or
+   Streamlit reruns the whole script on every click. Without session state, picking another report or
    downloading the CSV would lose the results, or worse, call the model again.
 
 10. **How is the Word file made without a library?**

@@ -55,7 +55,7 @@ The key is read from the `GEMINI_API_KEY` environment variable first, then from 
 Other commands:
 
 ```bash
-pytest -q                                          # 55 offline tests, no API calls
+pytest -q                                          # 56 offline tests, no API calls
 python scripts/run_samples.py docs/samples/*.pdf   # run the agent from the CLI, timed, JSON to output/
 python scripts/eval_queue.py docs/samples/*.pdf    # rank the samples through the Monday queue (real API)
 python scripts/eval_queue.py --diff output         # regression diff of output/ against eval/baseline/
@@ -186,8 +186,8 @@ and a quote cited on the wrong page.
 **What it does.** Switch the mode to *Monday queue*, upload 2–5 RFP PDFs and click *Rank these RFPs*.
 You get one line built by code, e.g. *"Start with: City of Port Alder (…): BID, fit 8/10, proposal due
 in 52 days"*, then a ranked table (rank, file, agency, decision, fit score, proposal due, days left,
-status, next must-attend event, biggest deal-breaker), a CSV download, and one expander per RFP with
-its full normal report.
+status, next must-attend event, biggest deal-breaker), a CSV download, and a **Full report** section: pick any RFP to see its complete single-RFP
+report (Report, Evidence check and JSON tabs, plus Word, calendar and JSON downloads).
 
 **Why I chose it.** The brief's own scenario is a bids lead with three new RFPs on a Monday who needs to
 know which one deserves a week of proposal writing. Single-RFP triage answers "is this one any good?";
@@ -208,7 +208,7 @@ the queue answers the question they actually have: "which one first?"
   `kind` (`proposal_due`, `questions_due`, `site_visit`, `start_date`, `other`) and a `mandatory` flag
   (bidders must attend). The queue takes the current (not superseded) `proposal_due`; if several remain,
   the latest, with a ⚠️. A deadline already in the past makes the row **Expired** and ranks it last.
-- **Results live in `st.session_state`**, so opening an expander or downloading the CSV doesn't call the
+- **Results live in `st.session_state`**, so picking another report or downloading the CSV doesn't call the
   model again. *Clear results* resets it.
 - **CSV safety.** RFP text is untrusted, and a cell starting with `=`, `+`, `-` or `@` runs as a formula in
   Excel or Sheets (CSV injection). Such cells get a leading `'`, so they show as plain text.
@@ -245,7 +245,7 @@ dependency needed).
 
 ## Testing and results
 
-- **55 offline pytest tests** ([tests/](tests/)), including 20 for the Monday queue, rate limits and Word
+- **56 offline pytest tests** ([tests/](tests/)), including 20 for the Monday queue, rate limits and Word
   export: sort order and tie-breaks, days left and Expired with an injected date, "Not stated" deadlines,
   the proposal-deadline choice, the recommendation line, CSV formula injection, a failing file not stopping
   the queue, duplicates run once, the 5-file cap, 429 → 15 s → 30 s → success, no retry on a bad key, and
@@ -297,7 +297,7 @@ triage/evidence.py         bonus 1: quote verification (no AI)
 triage/ranking.py          bonus 2: Monday queue (run files one by one, rank, CSV); no AI
 triage/calendar_export.py  bonus 3: .ics export
 triage/report_docx.py      bonus 4: Word report, standard library only
-tests/                     55 offline tests
+tests/                     56 offline tests
 scripts/                   CLI runner, queue eval + regression diff, live UI smoke test, synthetic RFP generator
 docs/samples/              the two idiaz.io sample RFPs; docs/synthetic/ my two test RFPs
 ```

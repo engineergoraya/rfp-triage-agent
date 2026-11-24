@@ -84,7 +84,8 @@ def test_queue_ranks_files_and_keeps_results_across_reruns():
     assert at.fake.call_count == 2          # one triage per file, and the extra rerun did not call again
     assert any(s.value.startswith("Start with:") for s in at.success)
     assert any(b.label == "⬇️ Download CSV" for b in at.get("download_button"))
-    assert len(at.expander) == 2            # one full report per RFP
+    assert len(at.selectbox(key="queue_report_choice").options) == 2   # a full report for each RFP
+    assert [t.label for t in at.tabs] == ["Report", "Evidence check", "JSON"]
     assert any("Up to 6 model calls" in c.value for c in at.caption)
 
 
@@ -128,7 +129,7 @@ def test_queue_twice_replays_cache_without_error():
         at.button[0].click().run()                       # second run: served from the cache
     assert not at.exception
     assert not any("could not be analysed" in w.value for w in at.warning), [w.value for w in at.warning]
-    assert len(at.expander) == 2
+    assert len(at.selectbox(key="queue_report_choice").options) == 2
 
 
 def text_pdf(text: str) -> bytes:
@@ -180,14 +181,42 @@ def test_queue_with_five_files_duplicate_and_scanned_pdf():
         at.button[0].click().run()
         first_calls = llm.call_count
         assert not at.exception
-        assert len(at.expander) == 3                                   # alpha, beta, gamma
+        assert len(at.selectbox(key="queue_report_choice").options) == 3   # alpha, beta, gamma
         assert any("Skipped duplicate: alpha-copy.pdf" in i.value for i in at.info)
         assert any("scan.pdf" in w.value and "scanned" in w.value for w in at.warning)
         assert first_calls == 9                                        # 3 new files x 3 calls; scan makes none
 
         at.button(key="clear_queue").click().run()
         at.button[0].click().run()                                     # same files again: all from the cache
-        assert not at.exception and llm.call_count == first_calls and len(at.expander) == 3
+        assert not at.exception and llm.call_count == first_calls
+        assert len(at.selectbox(key="queue_report_choice").options) == 3
 
         at.file_uploader(key="queue_files").set_value(files[:3]).run()  # user removes two files
         assert any("files changed since this ranking" in i.value for i in at.info)
+
+
+def test_queue_full_report_section_switches_between_rfps():
+    reports = {b"%PDF-1.4 pick one": dict(SAMPLE_REPORT, fit_score=9),
+               b"%PDF-1.4 pick two": dict(SAMPLE_REPORT, decision="NO_BID", fit_score=2)}
+    files = [("one.pdf", b"%PDF-1.4 pick one", "application/pdf"), ("two.pdf", b"%PDF-1.4 pick two", "application/pdf")]
+    other = [("three.pdf", b"%PDF-1.4 pick three", "application/pdf"), ("one.pdf", b"%PDF-1.4 pick one", "application/pdf")]
+    reports[b"%PDF-1.4 pick three"] = dict(SAMPLE_REPORT, fit_score=7)
+    at = AppTest.from_file(APP, default_timeout=30)
+    with patch.dict("os.environ", {"GEMINI_API_KEY": "test-key", "QUEUE_PAUSE_SECONDS": "0"}), \
+         patch("triage.pipeline.run_triage", side_effect=lambda pdf, key, *a: reports[pdf]):
+        at.run()
+        at.radio(key="view").set_value("Monday queue").run()
+        at.file_uploader(key="queue_files").set_value(files).run()
+        at.button[0].click().run()
+        picker = at.selectbox(key="queue_report_choice")
+        assert picker.value == "one.pdf"                           # defaults to rank 1
+        assert any("9/10" in m.value for m in at.metric)
+        picker.set_value("two.pdf").run()                         # switch: shows the other report
+        assert any("2/10" in m.value for m in at.metric) and not at.exception
+        assert [t.label for t in at.tabs] == ["Report", "Evidence check", "JSON"]
+        labels = [b.label for b in at.get("download_button")]
+        assert any("Word" in l for l in labels) and any("JSON" in l for l in labels) and any(".ics" in l for l in labels)
+        # A new batch without the selected file must not crash the picker.
+        at.file_uploader(key="queue_files").set_value(other).run()
+        at.button[0].click().run()
+        assert not at.exception and at.selectbox(key="queue_report_choice").value in ("one.pdf", "three.pdf")

@@ -47,6 +47,13 @@ Return:
    - If a date was changed (addendum, struck-through text, "extended from X to Y"), list the old and
      new dates as separate items, set superseded=true on the old one, and say in each note which is current.
    - If the same event has two different dates with no explanation, list both and add an ambiguity.
+   - kind: "proposal_due" for the proposal/bid submission deadline (old and new ones if it changed),
+     "questions_due" for the written-questions cut-off, "site_visit" for site visits, walk-throughs and
+     pre-bid or pre-proposal meetings, "start_date" for contract or work start / notice to proceed,
+     "other" for everything else (issue date, addenda, answers posted, bid opening, award, contract or
+     period of performance end, ...).
+   - mandatory: true only for an event bidders MUST ATTEND (in person or online), e.g. a mandatory
+     pre-bid meeting or site walk. False for submission deadlines, RSVPs and optional events.
 
 3. ambiguities: anything a bidder would need to clarify. Check at least for: changed or conflicting
    dates, conflicting numbers or page limits, relative or vague dates, mandatory vs desired items

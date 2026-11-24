@@ -1,7 +1,7 @@
 # EXPLAIN: how the RFP Triage Agent works, file by file
 
 This is a plain-English walkthrough so anyone (including me in the demo call) can explain every part.
-Read it top to bottom once and you will know the whole codebase. It is about 1,000 lines of app code.
+Read it top to bottom once and you will know the whole codebase. It is about 1,300 lines of app code.
 
 ---
 
@@ -18,7 +18,9 @@ Read it top to bottom once and you will know the whole codebase. It is about 1,0
 5. If the work is clearly not ours (janitorial, construction), we stop: **fast NO_BID**, no third call.
 6. Otherwise a third Gemini call scores the fit and makes the bid decision. Code re-checks the score
    arithmetic and the BID rule. If the model broke them, it is asked once more with the mistake spelled out.
-7. Everything is packed into one validated `TriageReport`, shown in the UI and offered as JSON and `.ics`.
+7. Everything is packed into one validated `TriageReport`, shown in the UI and offered as JSON, `.ics`
+   and Word (`.docx`).
+8. **Monday queue mode** runs steps 1–7 for 2–5 PDFs, one after another, then plain code ranks them.
 
 ---
 
@@ -31,19 +33,36 @@ Streamlit reruns this script from top to bottom every time the user interacts. N
 - **`get_api_key()`**: reads `GEMINI_API_KEY` from the environment (local development) or from `st.secrets`
   (Streamlit Cloud's secret store, or the git-ignored `.streamlit/secrets.toml`). Returns `""` if
   neither exists. The page then shows an error and stops.
-- **`cached_triage(file_hash, model, _pdf_bytes, _api_key)`**: wraps `run_triage` in `@st.cache_data`.
-  Streamlit builds the cache key from the arguments, but **arguments starting with `_` are not hashed**,
-  so the key is only *(SHA-256 of the file, model name)*. The same PDF uploaded again returns instantly and
+- **`cached_triage(file_hash, model, version, _pdf_bytes, _api_key, _progress)`**: wraps `run_triage` in
+  `@st.cache_data`. Streamlit builds the cache key from the arguments, but **arguments starting with `_`
+  are not hashed**, so the key is only *(SHA-256 of the file, model name, `REPORT_VERSION`)*. The version
+  is bumped whenever the report's shape changes (version 2 added the date `kind`), so an old cached report
+  missing the new fields is never reused. `_progress` lets the queue show status lines. The same PDF uploaded again returns instantly and
   costs no API quota. `persist="disk"` keeps the cache across app restarts.
-- **`show_report(report)`**: draws the report. It shows a green (BID) or red (NO BID) banner, then three
+- **`render_report(report, key)`**: draws the report. `key` makes the widget IDs unique (`single`, or
+  `queue-1`, `queue-2`…), because Streamlit refuses two download buttons with the same ID on one page. It shows a green (BID) or red (NO BID) banner, then three
   metrics (decision, score, quotes verified), then any warnings, then three tabs:
   - *Report*: the five required sections, in the brief's order, plus the `.ics` button.
   - *Evidence check*: "X of Y quotes verified" and a table sorted so the riskiest items come first
     (not found → wrong page → verified; a date whose value doesn't match its quote also jumps to the top).
   - *JSON*: a download button and the raw JSON.
-- **Bottom of the file (the page itself)**: title, key check, file uploader, spinner, and `try/except`.
+  Above the tabs: a *Download report (Word .docx)* button.
+- **`render_single(api_key)`**: the original single-RFP flow, unchanged: uploader, spinner, `try/except`.
   Our own errors (`PdfError`, `LLMError`) are shown as friendly `st.error` messages. Anything unexpected
-  is still shown as an error rather than a blank page.
+  is still shown as an error rather than a blank page. It `return`s (never `st.stop()`s) when no file is
+  uploaded, so it can't block the other view.
+- **`render_queue(api_key)`**: the Monday queue view. A multi-file uploader (more than 5 → error, no
+  button), a caption with the maximum number of model calls, and a *Rank these RFPs* button. The button
+  calls `ranking.run_queue` with `triage_one` (the same cached triage as single mode) and stores the
+  result in `st.session_state["queue"]`. Everything below the button reads from session state, so later
+  reruns (an expander opened, the CSV downloaded) never call the model. It shows the recommendation
+  line, the table, the CSV button, *Clear results*, and one expander per RFP with `render_report`.
+  - **`show(message, fraction)`** (inside it): updates the status line and progress bar. The pipeline's
+    two extraction calls run in worker threads, and Streamlit only lets a thread draw if it carries the
+    page's "script run context". `add_script_run_ctx` attaches it, so "Waiting for the free-tier rate
+    limit…" can appear even when the wait happens inside a worker thread.
+- **Bottom of the file (the page itself)**: title, key check, then a **radio button** (not `st.tabs`)
+  choosing the view. With a radio only the chosen view runs, and the choice survives reruns.
 
 ### `triage/pdf_reader.py`: PDF to text
 
@@ -149,6 +168,54 @@ only part of JSON Schema. Rules like "exactly 3 reasons" are checked in plain co
   title + what + date, so importing again updates events instead of duplicating them.
 - **`is_exportable`**: an exact date **and** not superseded. **`count_exportable`**: used for the button label.
 
+### `triage/ranking.py`: bonus feature 2, the Monday queue (no AI)
+
+Not called `queue.py` on purpose: a local `queue.py` would shadow Python's standard `queue` module,
+which libraries we use import. Every function takes `today` as a parameter, so tests can fix the date.
+
+- **`_exact(value)`**: a `date` for a real `YYYY-MM-DD`, else `None`.
+- **`proposal_due(deadlines)`**: picks dates with `kind == "proposal_due"`, drops superseded ones (unless
+  that leaves nothing), and returns the latest exact date plus a flag if more than one distinct date was
+  left. Port Alder: Jan 8 is superseded, so Jan 15 wins with no flag.
+- **`next_must_attend(deadlines, today)`**: the earliest upcoming date that is `mandatory`, not
+  superseded, and an *event* (`site_visit` or `other`). Deadlines are excluded even if the model flagged
+  them, because the fallback model over-uses the flag.
+- **`build_row(report, filename, today, error)`**: one table row. `report=None` makes a "Failed" row
+  with the reason. Days left = due date − today; below zero → status "Expired", group "not live". Keys
+  starting with `_` (`_group`, `_due`) are for sorting only and are never shown or exported.
+- **`sort_rows(rows)`**: sorts by (group, −score, due date with "Not stated" as `date.max`, filename), then
+  numbers the rows. Groups: 0 live BID, 1 live NO_BID, 2 Expired/Failed.
+- **`recommendation_line(rows)`**: the first live BID in the sorted rows becomes "Start with: …", or
+  "No BIDs in this batch."
+- **`_safe_cell` / `to_csv(rows)`**: the CSV-injection guard (prefix `'` before `= + - @`, tab or CR; only
+  on text, so `-4` days left stays a number), written with the `csv` module as UTF-8 with a BOM so Excel
+  reads accents correctly.
+- **`run_queue(files, triage_fn, today, progress, pause_seconds, sleep)`**: loops over the files **one at
+  a time**: skip a duplicate SHA-256, pause between files, call `triage_fn`, and turn any exception into a
+  Failed row instead of stopping. `triage_fn` and `sleep` are parameters, so tests pass fakes and no real
+  model call or real wait ever happens in tests.
+
+### `triage/report_docx.py`: bonus feature 4, the Word report
+
+- **`_para(text, size, bold)`**: one Word paragraph in XML. The text is cleaned of control characters (XML
+  forbids them; PDF text often has form feeds) and escaped (`&`, `<`, `>`).
+- **`build_docx(report)`**: builds the paragraphs for every report section and zips three files:
+  `[Content_Types].xml`, `_rels/.rels`, `word/document.xml`. That is the minimum Word needs. No
+  dependency. I checked the output opens with macOS `textutil`.
+
+### Rate limits in `triage/llm.py` (added for the queue)
+
+`RATE_LIMIT_BACKOFF_SECONDS = [15, 30, 60]`. A 429 that names a per-*day* quota still skips to the next
+model (waiting can't help). Any other 429 / `RESOURCE_EXHAUSTED` is the per-minute limit: call
+`on_wait(seconds)` (the UI shows "Waiting for the free-tier rate limit…"), sleep, retry the same model;
+after the third wait, raise `LLMError`. That is the only place rate-limit retries happen, so they never
+multiply with the model fallback loop. 401/403 and "API key" errors are never retried.
+
+### Date fields added for the queue (`schemas.py`, `prompts.py`)
+
+`DateItem` gained `kind` (`proposal_due`, `questions_due`, `site_visit`, `start_date`, `other`) and
+`mandatory` (bidders must attend). The brief's JSON shape is unchanged; these are extra keys.
+
 ### `tests/`
 
 - `test_logic.py`: the evidence check, ICS, date cleaning, the fast no-bid gate (the decide call is never
@@ -156,8 +223,10 @@ only part of JSON Schema. Rules like "exactly 3 reasons" are checked in plain co
   LLM and the PDF reader are replaced with fakes (`unittest.mock.patch`).
 - `test_llm.py`: retry and fallback behaviour with a fake `_call` (503 → retry; daily quota → next model;
   bad JSON → one retry; bad key → stop; thinking level rejected → retry with the default).
+- `test_queue.py`: the Monday queue, rate limits and Word export (see section 5).
 - `test_ui.py`: runs the real `app.py` with Streamlit's `AppTest`, uploads a file, and checks the banner,
-  tabs, download buttons, scanned-PDF error and missing-key error. `sample_report.json` is a real report
+  tabs, download buttons, scanned-PDF error and missing-key error. Two queue tests switch to the queue
+  view, upload two files, click *Rank*, rerun, and check that the model was called exactly twice. `sample_report.json` is a real report
   saved from a live run.
 
 ### `scripts/`
@@ -166,6 +235,10 @@ only part of JSON Schema. Rules like "exactly 3 reasons" are checked in plain co
   and time, and saves JSON to `output/`.
 - `ui_smoke.py`: uploads real PDFs through the real UI with real API calls, twice each (the second upload
   proves the cache works).
+- `eval_queue.py`: ranks real PDFs through `run_queue` with the real pipeline (no cached or hard-coded
+  answers), prints the table, saves reports to `eval/latest/`, and diffs them against `eval/baseline/`
+  (decision, fit score within 1 point, the set of exact dates). `--diff DIR` only does the diff.
+  `eval/` is git-ignored because its files are derived from the sample RFPs.
 - `make_samples.py`: generates the two synthetic RFPs with deliberate traps (conflicting due dates, an
   award date with no day, a FedRAMP requirement buried in Appendix C, and a construction job with a small
   "HVAC controls" line).
@@ -187,6 +260,10 @@ only part of JSON Schema. Rules like "exactly 3 reasons" are checked in plain co
 | **Fallback chain of 3 models** | 20 requests per model per day; each model has its own quota | Fallbacks can be less thorough, so the UI warns |
 | **Streamlit Community Cloud** | Free, deploys from GitHub, built-in secrets, same code as local | Sleeps when idle; single small container |
 | **All-day calendar events** | Never guess a timezone | The time is in the description, not the event |
+| **Queue runs files one at a time** | Free-tier per-minute limits; parallel files would multiply 429s | A batch of 5 new files can take several minutes |
+| **Ranking in code, not by the LLM** | Same input → same order, and every step can be explained | Can't weigh soft factors the score doesn't capture |
+| **Deadline chosen by a `kind` field** | String-matching "Proposal due" in free text is fragile | One more field the model must fill in |
+| **Word export written by hand** | No new dependency; three XML files | Plain formatting (no tables or styles) |
 
 ---
 
@@ -245,7 +322,7 @@ only part of JSON Schema. Rules like "exactly 3 reasons" are checked in plain co
 
 12. **How did you test accuracy?**
     I read both sample RFPs first and wrote down the right dates and decision. Then I ran the agent and
-    compared every date by hand, wrote synthetic RFPs with known traps, and wrote 30 offline tests for all
+    compared every date by hand, wrote synthetic RFPs with known traps, and wrote offline tests (50 now) for all
     the non-LLM logic and the UI.
 
 13. **Why does the janitorial RFP still list requirements if it's a fast no-bid?**
@@ -260,6 +337,60 @@ only part of JSON Schema. Rules like "exactly 3 reasons" are checked in plain co
 
 15. **If you had another week, what would you add?**
     A richer company profile (past projects, certifications, headcount) so eligibility can be scored
-    rather than just flagged; a "compare RFPs" view that ranks this week's RFPs by score; OCR for scanned
+    rather than just flagged; OCR for scanned
     PDFs; and a small regression set of RFPs with hand-labelled answers to measure recall automatically
     whenever the prompts change.
+
+---
+
+## 5. Monday queue and Word export: likely questions
+
+1. **Why sequential and not parallel?**
+   The free tier limits requests per minute per model. Each RFP already makes 2 parallel calls; five
+   files in parallel would be 10 at once and trigger 429s. One at a time, with a 2 s pause, is slower but
+   predictable, and cached files are instant anyway.
+
+2. **Why is the ranking done by code and not the LLM?**
+   It must be repeatable and explainable: same reports in, same order out, and I can say exactly why A
+   beats B (group, then score, then deadline, then name). The LLM already did the hard part, scoring
+   each RFP; ordering numbers is a job for `sorted()`.
+
+3. **How do you handle rate limits?**
+   Per-day quota: skip to the next model, since waiting won't help. Per-minute (429 / RESOURCE_EXHAUSTED):
+   wait 15, 30, 60 s on the same model, then fail that file with a clear message. The waits live in one
+   place in `llm.py`, so they never multiply with the fallback loop. Bad keys are never retried.
+
+4. **What happens when one file fails?**
+   `run_queue` catches the error, adds a "Failed" row with the reason (e.g. "This PDF looks scanned"),
+   and carries on. Failed rows rank last. A test feeds a scanned file, a crash and a good file and checks
+   that the good one still ranks first.
+
+5. **Why is "days left" approximate?**
+   Deadlines are in the agency's time zone (often with a time like "3:00 PM Pacific"), while the count is
+   just the date minus today's date on the server. It can be off by a day near midnight. The caption says so.
+
+6. **What is CSV injection and how did you stop it?**
+   Excel and Sheets treat a cell starting with `=`, `+`, `-` or `@` as a formula, and RFP text is untrusted,
+   so an agency name like `=HYPERLINK(...)` could run when the CSV is opened. `_safe_cell` adds a leading
+   `'`, which makes the spreadsheet show it as text. Numbers (like −4 days) are left alone.
+
+7. **How did you avoid breaking the single-RFP flow?**
+   The single view's code moved into `render_single` unchanged; the pipeline only gained an optional
+   `on_wait` callback and two extra date fields. I saved both samples' reports as a baseline before
+   changing anything and diffed after: same decisions (Port Alder BID, Larkspur fast NO_BID), scores
+   within a point, and the same proposal, questions, site-visit and start dates. The only differences: the
+   new run also lists Addendum No. 1's issue date (correct, and missing before), and Larkspur's
+   contract-end date (2029-01-31) now appears only in the "period of performance" fact rather than as a
+   separate date row. All 30 old tests still pass.
+
+8. **How do you pick the proposal deadline when there are several?**
+   By the `kind` field, never by text. Superseded dates are ignored; if more than one current date is
+   left, the latest is used and the row gets a ⚠️ so a human checks it.
+
+9. **Why does `st.session_state` matter here?**
+   Streamlit reruns the whole script on every click. Without session state, opening an expander or
+   downloading the CSV would lose the results, or worse, call the model again.
+
+10. **How is the Word file made without a library?**
+    A `.docx` is a zip. Three XML files (content types, a relationships file, the document) are the minimum
+    Word, Google Docs and LibreOffice accept. Text is escaped and stripped of control characters.

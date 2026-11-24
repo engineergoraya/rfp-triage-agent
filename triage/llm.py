@@ -2,7 +2,8 @@
 
 One public function, `generate_json`, which:
   1. sends a prompt with a Pydantic schema as `response_schema` (Gemini then must answer in that JSON shape),
-  2. retries with backoff on temporary errors (503 busy, per-minute 429), then moves to the next model,
+  2. retries with backoff on temporary errors: 503 busy (short waits, then the next model) and the
+     per-minute rate limit 429 (15s / 30s / 60s, then the file fails), skips models whose daily quota is gone,
   3. validates the JSON with Pydantic and retries once if it is invalid,
   4. turns every failure into an LLMError with a message fit to show in the UI.
 """
@@ -25,7 +26,10 @@ DEFAULT_FALLBACK_MODELS = "gemini-3.5-flash,gemini-3.5-flash-lite,gemini-3.8-fla
 # recall (the task is careful reading, not multi-step reasoning). Override with GEMINI_THINKING_LEVEL.
 DEFAULT_THINKING_LEVEL = "minimal"
 
-BACKOFF_SECONDS = [2, 5]  # waits between retries on temporary errors, per model
+BACKOFF_SECONDS = [2, 5]  # waits between retries when Google is busy (5xx), per model
+# Waits for the per-minute free-tier rate limit (HTTP 429 / RESOURCE_EXHAUSTED). This is the ONLY
+# place rate-limit retries happen, so they never multiply. After the last wait the request fails.
+RATE_LIMIT_BACKOFF_SECONDS = [15, 30, 60]
 
 
 class LLMError(Exception):
@@ -65,15 +69,21 @@ def _is_daily_quota(exc: errors.APIError) -> bool:
     return exc.code == 429 and "perday" in str(exc).lower()
 
 
-def generate_json(api_key: str, prompt: str, schema: type[BaseModel], system: str):
-    """Return (validated schema instance, model name used)."""
+def _is_rate_limit(exc: errors.APIError) -> bool:
+    return exc.code == 429 or "resource_exhausted" in str(exc).lower()
+
+
+def generate_json(api_key: str, prompt: str, schema: type[BaseModel], system: str, on_wait=None):
+    """Return (validated schema instance, model name used).
+    `on_wait(seconds)` is an optional callback, called before each rate-limit wait (for the UI)."""
     client = genai.Client(api_key=api_key)
     errors_seen = []  # one line per model, so the final message explains every failure
 
     for model in models_to_try():
         json_retry_used = False
         set_thinking = True
-        attempt = 0
+        attempt = 0       # busy (5xx) retries used on this model
+        rate_attempt = 0  # rate-limit retries used on this model
         while True:
             try:
                 text = _call(client, model, prompt, schema, system, set_thinking)
@@ -98,9 +108,20 @@ def generate_json(api_key: str, prompt: str, schema: type[BaseModel], system: st
                 if _is_daily_quota(exc):
                     errors_seen.append(f"{model}: daily free quota used up")
                     break
-                if exc.code == 429 or (exc.code or 0) >= 500:
+                if _is_rate_limit(exc):
+                    # Per-minute limit: waiting helps. We do NOT also fall through to other models,
+                    # so the worst case per call is bounded (15 + 30 + 60 s), then a clear error.
+                    if rate_attempt >= len(RATE_LIMIT_BACKOFF_SECONDS):
+                        raise LLMError("Still rate-limited by Google's free tier after 3 retries "
+                                       f"({model}). Wait a minute and try again.") from exc
+                    if on_wait:
+                        on_wait(RATE_LIMIT_BACKOFF_SECONDS[rate_attempt])
+                    time.sleep(RATE_LIMIT_BACKOFF_SECONDS[rate_attempt])
+                    rate_attempt += 1
+                    continue
+                if (exc.code or 0) >= 500:
                     if attempt >= len(BACKOFF_SECONDS):
-                        errors_seen.append(f"{model}: busy or rate-limited (HTTP {exc.code})")
+                        errors_seen.append(f"{model}: busy (HTTP {exc.code})")
                         break
                     time.sleep(BACKOFF_SECONDS[attempt])
                     attempt += 1

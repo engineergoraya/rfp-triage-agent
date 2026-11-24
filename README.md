@@ -6,6 +6,9 @@ point, the three strongest reasons, deal-breakers, what would change the decisio
 the agency. Every date and requirement is traced back to a verbatim quote and page, and **plain code
 (not the AI) checks each quote against the PDF** so a reviewer knows exactly which items to recheck.
 
+Got several RFPs on a Monday? **Monday queue** mode ranks 2–5 of them in one table and says which one
+to start with. Every report can be downloaded as **Word (.docx)**, JSON, or calendar (.ics).
+
 **Live app:** `<<PASTE STREAMLIT URL HERE>>`
 
 ![flow](https://img.shields.io/badge/PDF-%E2%86%92%20extract%20%E2%86%92%20verify%20%E2%86%92%20decide%20%E2%86%92%20report-orange)
@@ -23,6 +26,8 @@ the agency. Every date and requirement is traced back to a verbatim quote and pa
 | 5. BID / NO_BID: 3 strongest reasons, deal-breakers, what would change the decision, open questions, ambiguities | LLM call 2, decision rule re-checked by code |
 | Evidence check tab ("X of Y quotes verified", riskiest first) | **plain Python** |
 | Calendar export (.ics) | **plain Python** |
+| Word report download (.docx) | **plain Python** (standard library only) |
+| Monday queue: 2–5 RFPs ranked in one table, CSV download | **plain Python** ranking on top of the same pipeline |
 | JSON tab + download (same data, machine-readable) | — |
 
 The JSON always contains the shape from the brief, plus everything else:
@@ -50,15 +55,17 @@ The key is read from the `GEMINI_API_KEY` environment variable first, then from 
 Other commands:
 
 ```bash
-pytest -q                                          # 30 offline tests, no API calls
+pytest -q                                          # 50 offline tests, no API calls
 python scripts/run_samples.py docs/samples/*.pdf   # run the agent from the CLI, timed, JSON to output/
+python scripts/eval_queue.py docs/samples/*.pdf    # rank the samples through the Monday queue (real API)
+python scripts/eval_queue.py --diff output         # regression diff of output/ against eval/baseline/
 python scripts/ui_smoke.py docs/samples/*.pdf      # drive the real UI with real API calls
 python scripts/make_samples.py                     # regenerate the synthetic test RFPs in docs/synthetic/
 ```
 
 Optional settings (environment variables or secrets): `GEMINI_MODEL` (default `gemini-3.6-flash`),
 `GEMINI_FALLBACK_MODEL` (comma-separated, default `gemini-3.5-flash,gemini-3.5-flash-lite,gemini-3.8-flash`),
-`GEMINI_THINKING_LEVEL` (default `minimal`).
+`GEMINI_THINKING_LEVEL` (default `minimal`), `QUEUE_PAUSE_SECONDS` (pause between queue files, default `2`).
 
 ## Which model, and why
 
@@ -84,6 +91,19 @@ Why a *list* of fallbacks: **the free tier allows only 20 requests per model per
 during testing; the API names the quota `GenerateRequestsPerDayPerProjectPerModel-FreeTier`). One triage
 uses 3 requests, or 4 when a retry is needed, so each extra model adds roughly 5 more analyses per day.
 When a fallback is used, the report says so in a warning.
+
+**Rate limits: what the official docs say (checked 2026-11-24 at ai.google.dev/gemini-api/docs/rate-limits,
+which now redirects to aistudio.google.com/docs/rate-limits).** Limits are measured as requests per minute
+(RPM), input tokens per minute (TPM) and requests per day (RPD); they are "applied per project, not per
+API key"; RPD "quotas reset at midnight Pacific time"; and the per-model numbers are **not published on
+the page**: it says to view your active limits in AI Studio (signed in). So I don't quote RPM/TPM numbers
+here. The 20-per-day figure above is what the API itself reported for our project, not a number from the docs.
+How the app handles limits ([triage/llm.py](triage/llm.py)):
+- **Daily quota used up** (429 naming a per-day quota): waiting can't help, so skip to the next model.
+- **Per-minute limit** (429 / `RESOURCE_EXHAUSTED`): wait 15 s, 30 s, 60 s on the same model, then fail
+  that request with a clear message. This is the only place rate-limit retries happen, so they never multiply.
+- **Google busy** (5xx): wait 2 s, 5 s, then try the next model.
+- **Bad API key or invalid request:** no retry at all.
 
 `temperature=0` throughout. `minimal` thinking: the task is careful reading, not multi-step reasoning,
 and in my tests it was several times faster with no loss of recall.
@@ -159,7 +179,48 @@ an exact date that the text only expresses as "the same day" (flagged: date does
 caught a quote where the model wrote "efforts statement" for the PDF's "effort statement" (not found),
 and a quote cited on the wrong page.
 
-### 2. Calendar export (.ics)
+### 2. Monday queue (rank several RFPs)
+
+**What it does.** Switch the mode to *Monday queue*, upload 2–5 RFP PDFs and click *Rank these RFPs*.
+You get one line built by code, e.g. *"Start with: City of Port Alder (…): BID, fit 8/10, proposal due
+in 52 days"*, then a ranked table (rank, file, agency, decision, fit score, proposal due, days left,
+status, next must-attend event, biggest deal-breaker), a CSV download, and one expander per RFP with
+its full normal report.
+
+**Why I chose it.** The brief's own scenario is a bids lead with three new RFPs on a Monday who needs to
+know which one deserves a week of proposal writing. Single-RFP triage answers "is this one any good?";
+the queue answers the question they actually have: "which one first?"
+
+**How it works.**
+- **Same agent, run one file at a time** ([triage/ranking.py](triage/ranking.py) `run_queue`), not in
+  parallel, because of the free-tier per-minute limit, with a 2 s pause between files. Each file goes
+  through the same cached `run_triage` as single mode, so re-ranking already-seen files is instant and free.
+- **A failed file never stops the queue.** A scanned PDF, a rate limit that outlasts the retries or
+  invalid JSON becomes a "Failed" row with the reason. Identical files (same SHA-256) run once.
+- **The ranking is plain code, not the LLM:** live BIDs, then live NO_BIDs, then Expired and Failed; within
+  a group, higher fit score, then the earlier proposal deadline ("Not stated" last), then filename. Code
+  is explainable and gives the same order every time.
+- **The deadline is picked by a field, not by guessing from text.** Stage 1 now tags each date with a
+  `kind` (`proposal_due`, `questions_due`, `site_visit`, `start_date`, `other`) and a `mandatory` flag
+  (bidders must attend). The queue takes the current (not superseded) `proposal_due`; if several remain,
+  the latest, with a ⚠️. A deadline already in the past makes the row **Expired** and ranks it last.
+- **Results live in `st.session_state`**, so opening an expander or downloading the CSV doesn't call the
+  model again. *Clear results* resets it.
+- **CSV safety.** RFP text is untrusted, and a cell starting with `=`, `+`, `-` or `@` runs as a formula in
+  Excel or Sheets (CSV injection). Such cells get a leading `'`, so they show as plain text.
+
+**Limits.** At most 5 files (about 15 model calls, most of a model's daily free quota). Days left are
+approximate: deadlines are in the agency's own time zone and the count uses today's date. On the free
+tier, a batch of new files can take several minutes. The fallback model is less consistent at the
+`mandatory` flag than at dates, so the code only treats meetings and site visits as "must-attend".
+
+![Monday queue screenshot](docs/monday-queue.png) <!-- TODO: add a screenshot -->
+
+**Real result on the two samples** (via `scripts/eval_queue.py`, live API): rank 1 Port Alder, BID,
+proposal due 2027-01-15 (52 days left); rank 2 Larkspur, NO_BID (fast path), next must-attend event: the
+mandatory pre-bid site walk on 2026-12-03.
+
+### 3. Calendar export (.ics)
 
 **What it does.** One button downloads every *current* deadline with an exact date as an `.ics` file that
 opens in Google Calendar, Outlook or Apple Calendar. Each event's description holds the time, page and
@@ -169,9 +230,22 @@ dependency): all-day events, so no timezone is guessed; escaping and 75-octet li
 so re-importing updates rather than duplicates. **Superseded dates are never exported.** Port Alder's
 addendum moved the due date from Jan 8 to Jan 15, and putting the old date in a calendar would be harmful.
 
+### 4. Word report download (.docx)
+
+Every report (single or queue) has a *Download report (Word .docx)* button: summary, facts, dates,
+requirements, score factors, reasons, deal-breakers, open questions, ambiguities and warnings. It is built
+with Python's standard library only ([triage/report_docx.py](triage/report_docx.py)): a `.docx` is a zip of
+three small XML files. Text is XML-escaped and stripped of control characters, which PDFs often contain
+and which would corrupt the file. For a PDF, open it in Word or Google Docs and save as PDF (no extra
+dependency needed).
+
 ## Testing and results
 
-- **30 offline pytest tests** ([tests/](tests/)): the evidence checker (line breaks, wrong page, invented quotes,
+- **50 offline pytest tests** ([tests/](tests/)), including 20 for the Monday queue, rate limits and Word
+  export: sort order and tie-breaks, days left and Expired with an injected date, "Not stated" deadlines,
+  the proposal-deadline choice, the recommendation line, CSV formula injection, a failing file not stopping
+  the queue, duplicates run once, the 5-file cap, 429 → 15 s → 30 s → success, no retry on a bad key, and
+  the queue UI keeping results across reruns. The rest cover the evidence checker (line breaks, wrong page, invented quotes,
   quotes across a page break, date-vs-quote), the ICS export (only exact and current dates, escaping, folding),
   the pipeline with the LLM mocked (fast no-bid skips the decision call, JSON shape, non-exact dates forced to
   "Not stated", score and decision correction, the retry with correction), LLM retry and fallback behaviour
@@ -216,9 +290,11 @@ triage/schemas.py          Pydantic shapes for both LLM calls and the final repo
 triage/llm.py              the only code that calls Gemini: retries, fallbacks, validation
 triage/pipeline.py         the agent: one function per stage
 triage/evidence.py         bonus 1: quote verification (no AI)
-triage/calendar_export.py  bonus 2: .ics export
-tests/                     30 offline tests
-scripts/                   CLI runner, live UI smoke test, synthetic RFP generator
+triage/ranking.py          bonus 2: Monday queue (run files one by one, rank, CSV); no AI
+triage/calendar_export.py  bonus 3: .ics export
+triage/report_docx.py      bonus 4: Word report, standard library only
+tests/                     50 offline tests
+scripts/                   CLI runner, queue eval + regression diff, live UI smoke test, synthetic RFP generator
 docs/samples/              the two idiaz.io sample RFPs; docs/synthetic/ my two test RFPs
 ```
 

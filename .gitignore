@@ -1,0 +1,15 @@
+# Secrets: never commit these
+.env
+.env.*
+.streamlit/secrets.toml
+
+# Python / tooling
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.DS_Store
+output/
+
+# The challenge brief is reference material, not part of the app
+docs/idiaz-internship-challenge-2026.pdf

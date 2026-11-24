@@ -1,0 +1,4 @@
+# Extra tools for tests and for generating the synthetic sample PDFs
+-r requirements.txt
+pytest==9.2.0
+reportlab==5.1.0

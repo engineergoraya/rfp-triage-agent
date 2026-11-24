@@ -13,3 +13,6 @@ output/
 
 # The challenge brief is reference material, not part of the app
 docs/idiaz-internship-challenge-2026.pdf
+
+# Eval outputs come from docs/samples, so they stay local
+eval/

@@ -21,6 +21,9 @@ st.set_page_config(page_title="RFP Triage Agent", page_icon="📄", layout="cent
 
 STATUS_LABEL = {"verified": "✅ verified", "wrong_page": "⚠️ wrong page", "not_found": "❌ not found"}
 STATUS_ORDER = {"not_found": 0, "wrong_page": 1, "verified": 2}  # riskiest first
+# Part of the cache key: bump it when the report's shape changes, so old cached reports are not reused.
+# Version 2 added the date `kind` and `mandatory` fields that the Monday queue relies on.
+REPORT_VERSION = 2
 
 
 def get_api_key() -> str:
@@ -35,10 +38,11 @@ def get_api_key() -> str:
 
 
 @st.cache_data(show_spinner=False, max_entries=50, persist="disk")
-def cached_triage(file_hash: str, model: str, _pdf_bytes: bytes, _api_key: str, _progress=None) -> dict:
+def cached_triage(file_hash: str, model: str, version: int, _pdf_bytes: bytes, _api_key: str,
+                  _progress=None) -> dict:
     """Cache by file hash (+ model): re-uploading the same PDF costs no API quota (the free tier
     allows only 20 requests per model per day). persist="disk" keeps results across app restarts.
-    Arguments starting with "_" are not hashed by Streamlit, so the key is only (file_hash, model)."""
+    Arguments starting with "_" are not hashed by Streamlit, so the key is only (file_hash, model, version)."""
     return run_triage(_pdf_bytes, _api_key, _progress) if _progress else run_triage(_pdf_bytes, _api_key)
 
 
@@ -163,7 +167,7 @@ def render_single(api_key: str) -> None:
     file_hash = hashlib.sha256(pdf_bytes).hexdigest()
     try:
         with st.spinner("Reading every page and checking the fine print (usually under a minute)..."):
-            report = cached_triage(file_hash, models_to_try()[0], pdf_bytes, api_key)
+            report = cached_triage(file_hash, models_to_try()[0], REPORT_VERSION, pdf_bytes, api_key)
     except (PdfError, LLMError) as exc:
         st.error(str(exc))
     except Exception as exc:  # anything unexpected: show it instead of a blank page
@@ -194,7 +198,7 @@ def render_queue(api_key: str) -> None:
 
             def triage_one(pdf_bytes: bytes) -> dict:
                 file_hash = hashlib.sha256(pdf_bytes).hexdigest()
-                return cached_triage(file_hash, models_to_try()[0], pdf_bytes, api_key, show)
+                return cached_triage(file_hash, models_to_try()[0], REPORT_VERSION, pdf_bytes, api_key, show)
 
             # Kept in session_state: opening an expander or downloading the CSV reruns the script,
             # and must not call the model again.

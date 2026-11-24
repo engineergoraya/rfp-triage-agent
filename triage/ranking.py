@@ -38,9 +38,10 @@ def proposal_due(deadlines: list[dict]) -> tuple[str, bool]:
 
 
 def next_must_attend(deadlines: list[dict], today: date) -> str:
-    """Earliest upcoming date the RFP marks as mandatory (e.g. a site walk), other than the deadline."""
+    """Earliest upcoming event the RFP says bidders must attend (e.g. a site walk). Deadlines
+    (proposal, questions) and the start date are never "events", even if the model flags them."""
     upcoming = [d for d in deadlines
-                if d.get("mandatory") and not d.get("superseded") and d.get("kind") != "proposal_due"
+                if d.get("mandatory") and not d.get("superseded") and d.get("kind") in ("site_visit", "other")
                 and _exact(d["date"]) and _exact(d["date"]) >= today]
     if not upcoming:
         return "None found"

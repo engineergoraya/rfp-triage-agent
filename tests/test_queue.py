@@ -65,7 +65,8 @@ def test_days_left_and_expired_rule():
 def test_next_must_attend_is_earliest_upcoming_mandatory_date():
     dates = [due("2027-01-15"), due("2026-12-03", kind="site_visit", mandatory=True, what="Site walk"),
              due("2026-11-01", kind="site_visit", mandatory=True, what="Past walk"),
-             due("2026-12-10", kind="other", mandatory=False, what="Optional call")]
+             due("2026-12-10", kind="other", mandatory=False, what="Optional call"),
+             due("2026-11-30", kind="questions_due", mandatory=True, what="Questions due")]  # a deadline, not an event
     assert build_row(report(deadlines=dates), "a.pdf", TODAY)["Next must-attend event"] == "Site walk (2026-12-03)"
 
 

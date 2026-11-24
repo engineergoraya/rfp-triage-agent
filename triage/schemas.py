@@ -42,7 +42,7 @@ class DateItem(BaseModel):
     superseded: bool = Field(description="True if an addendum or revision replaced this date with a new one.")
     # Extra fields for the Monday queue: code picks dates by `kind`, never by matching the free-text `what`.
     kind: DateKind = Field(description="proposal_due, questions_due, site_visit, start_date or other.")
-    mandatory: bool = Field(description="True only if the document says attending or doing this is mandatory.")
+    mandatory: bool = Field(description="True only for an event bidders must attend (e.g. a mandatory site walk).")
 
 
 RequirementCategory = Literal[

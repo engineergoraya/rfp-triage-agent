@@ -69,3 +69,10 @@ def test_bad_api_key_stops_immediately():
 def test_model_rejecting_thinking_level_is_retried_with_default():
     (_, model), calls = run([api_error(400, "Thinking level MINIMAL is not supported for this model."), GOOD_JSON])
     assert model == "primary" and calls == ["primary", "primary"]
+
+
+def test_timeout_moves_to_next_model():
+    class ReadTimeout(Exception):  # stands in for the SDK's HTTP library timeout
+        pass
+    (_, model), calls = run([ReadTimeout("slow"), GOOD_JSON])
+    assert model == "fallback" and calls == ["primary", "fallback"]

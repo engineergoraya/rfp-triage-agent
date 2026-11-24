@@ -212,7 +212,12 @@ def render_queue(api_key: str) -> None:
     if not result:
         return
     rows = result["rows"]
-    st.success(recommendation_line(rows))
+    line = recommendation_line(rows)
+    (st.success if line.startswith("Start with") else st.info)(line)
+    # Failure reasons in plain sight (the Status column is far right in the table).
+    for row in rows:
+        if row["Decision"] == "Failed":
+            st.warning(f"**{row['File']}** could not be analysed. {row['Status'].removeprefix('Failed: ')}")
     for name in result["skipped"]:
         st.info(f"Skipped duplicate: {name}")
     st.dataframe([{k: v for k, v in r.items() if not k.startswith("_")} for r in rows],

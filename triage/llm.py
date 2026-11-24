@@ -30,6 +30,9 @@ BACKOFF_SECONDS = [2, 5]  # waits between retries when Google is busy (5xx), per
 # Waits for the per-minute free-tier rate limit (HTTP 429 / RESOURCE_EXHAUSTED). This is the ONLY
 # place rate-limit retries happen, so they never multiply. After the last wait the request fails.
 RATE_LIMIT_BACKOFF_SECONDS = [15, 30, 60]
+# The SDK has no request timeout by default, so an overloaded server could leave a request hanging
+# forever. The slowest healthy call we measured was about 150 s (default thinking), hence 180 s.
+REQUEST_TIMEOUT_SECONDS = 180
 
 
 class LLMError(Exception):
@@ -76,7 +79,8 @@ def _is_rate_limit(exc: errors.APIError) -> bool:
 def generate_json(api_key: str, prompt: str, schema: type[BaseModel], system: str, on_wait=None):
     """Return (validated schema instance, model name used).
     `on_wait(seconds)` is an optional callback, called before each rate-limit wait (for the UI)."""
-    client = genai.Client(api_key=api_key)
+    client = genai.Client(api_key=api_key,
+                          http_options=types.HttpOptions(timeout=REQUEST_TIMEOUT_SECONDS * 1000))
     errors_seen = []  # one line per model, so the final message explains every failure
 
     for model in models_to_try():
@@ -129,6 +133,13 @@ def generate_json(api_key: str, prompt: str, schema: type[BaseModel], system: st
                 # Any other error (e.g. a model that rejects a setting): note it and try the next model.
                 errors_seen.append(f"{model}: HTTP {exc.code} {str(exc)[:120]}")
                 break
+            except Exception as exc:
+                # A request timeout (ReadTimeout, ConnectTimeout... from the SDK's HTTP library).
+                # Matched by name so we don't import that library ourselves. Anything else is a real bug: re-raise.
+                if "timeout" not in type(exc).__name__.lower():
+                    raise
+                errors_seen.append(f"{model}: no answer within {REQUEST_TIMEOUT_SECONDS} s (Google overloaded)")
+                break  # try the next model
 
     hint = ("The free tier allows 20 requests per model per day (reset at midnight Pacific). "
             if any("daily" in e for e in errors_seen) else

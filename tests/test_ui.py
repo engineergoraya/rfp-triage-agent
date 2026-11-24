@@ -93,3 +93,17 @@ def test_queue_refuses_more_than_five_files():
     at = open_queue(files)
     assert any("at most 5" in e.value for e in at.error)
     assert at.fake.call_count == 0
+
+
+def test_queue_shows_failure_reason_above_the_table():
+    from triage.llm import LLMError
+    at = AppTest.from_file(APP, default_timeout=30)
+    files = [("a.pdf", b"%PDF-1.4 fail one", "application/pdf"), ("b.pdf", b"%PDF-1.4 fail two", "application/pdf")]
+    with patch.dict("os.environ", {"GEMINI_API_KEY": "test-key", "QUEUE_PAUSE_SECONDS": "0"}), \
+         patch("triage.pipeline.run_triage", side_effect=LLMError("daily free quota used up")):
+        at.run()
+        at.radio(key="view").set_value("Monday queue").run()
+        at.file_uploader(key="queue_files").set_value(files).run()
+        at.button[0].click().run()
+    assert any("No BIDs" in i.value for i in at.info)
+    assert sum("daily free quota used up" in w.value for w in at.warning) == 2

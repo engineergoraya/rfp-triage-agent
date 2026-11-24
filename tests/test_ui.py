@@ -59,3 +59,37 @@ def test_scanned_pdf_shows_clear_error():
         at.file_uploader[0].set_value(("scan.pdf", blank_pdf(), "application/pdf"))
         at.run()
     assert any("scanned" in e.value for e in at.error)
+
+
+# ---------------- Monday queue view ----------------
+
+def open_queue(files, report=None) -> AppTest:
+    at = AppTest.from_file(APP, default_timeout=30)
+    with patch.dict("os.environ", {"GEMINI_API_KEY": "test-key", "QUEUE_PAUSE_SECONDS": "0"}), \
+         patch("triage.pipeline.run_triage", return_value=report) as fake:
+        at.run()
+        at.radio(key="view").set_value("Monday queue").run()
+        at.file_uploader(key="queue_files").set_value(files).run()
+        if at.button:
+            at.button[0].click().run()   # "Rank these RFPs"
+        at.run()                        # an unrelated rerun (like a download click)
+    at.fake = fake
+    return at
+
+
+def test_queue_ranks_files_and_keeps_results_across_reruns():
+    files = [("a.pdf", b"%PDF-1.4 one", "application/pdf"), ("b.pdf", b"%PDF-1.4 two", "application/pdf")]
+    at = open_queue(files, SAMPLE_REPORT)
+    assert not at.exception
+    assert at.fake.call_count == 2          # one triage per file, and the extra rerun did not call again
+    assert any(s.value.startswith("Start with:") for s in at.success)
+    assert any(b.label == "⬇️ Download CSV" for b in at.get("download_button"))
+    assert len(at.expander) == 2            # one full report per RFP
+    assert any("Up to 6 model calls" in c.value for c in at.caption)
+
+
+def test_queue_refuses_more_than_five_files():
+    files = [(f"{i}.pdf", f"%PDF {i}".encode(), "application/pdf") for i in range(6)]
+    at = open_queue(files)
+    assert any("at most 5" in e.value for e in at.error)
+    assert at.fake.call_count == 0

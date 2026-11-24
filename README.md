@@ -9,7 +9,7 @@ the agency. Every date and requirement is traced back to a verbatim quote and pa
 Got several RFPs on a Monday? **Monday queue** mode ranks 2–5 of them in one table and says which one
 to start with. Every report can be downloaded as **Word (.docx)**, JSON, or calendar (.ics).
 
-**Live app:** `<<PASTE STREAMLIT URL HERE>>`
+**Live app:** https://engineergoraya-rfp-triage-agent-app-lqkbl1.streamlit.app
 
 ![flow](https://img.shields.io/badge/PDF-%E2%86%92%20extract%20%E2%86%92%20verify%20%E2%86%92%20decide%20%E2%86%92%20report-orange)
 

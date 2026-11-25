@@ -16,13 +16,13 @@ from google.genai import errors, types
 from pydantic import BaseModel, ValidationError
 
 # Free-tier models checked against ai.google.dev and our own key (Nov 2026). Override with env vars.
-# - gemini-3.6-flash gave the most complete extraction in our tests.
+# - gemini-3.6-flash gave the most complete extraction in the development tests.
 # - The free tier allows only 20 requests per day PER MODEL, and one triage uses 3-4 requests,
 #   so the fallback is a short list: each extra model adds its own daily quota.
 DEFAULT_MODEL = "gemini-3.6-flash"
 DEFAULT_FALLBACK_MODELS = "gemini-3.5-flash,gemini-3.5-flash-lite,gemini-3.8-flash"
 
-# "minimal" thinking was several times faster than the default on our samples with no loss of
+# "minimal" thinking was several times faster than the default on the samples with no loss of
 # recall (the task is careful reading, not multi-step reasoning). Override with GEMINI_THINKING_LEVEL.
 DEFAULT_THINKING_LEVEL = "minimal"
 
@@ -31,7 +31,7 @@ BACKOFF_SECONDS = [2, 5]  # waits between retries when Google is busy (5xx), per
 # place rate-limit retries happen, so they never multiply. After the last wait the request fails.
 RATE_LIMIT_BACKOFF_SECONDS = [15, 30, 60]
 # The SDK has no request timeout by default, so an overloaded server could leave a request hanging
-# forever. The slowest healthy call we measured was about 150 s (default thinking), hence 180 s.
+# forever. The slowest healthy call measured was about 150 s (default thinking), hence 180 s.
 REQUEST_TIMEOUT_SECONDS = 180
 
 
